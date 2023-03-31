@@ -3,6 +3,7 @@ photo-share-client/node_modules
 photo-share-server/node_modules
 
 photo-share-client/build
+photo-share-server/dist
 
 .env.local
 .env
