@@ -1,0 +1,8 @@
+
+photo-share-client/node_modules
+photo-share-server/node_modules
+
+photo-share-client/build
+
+.env.local
+.env
