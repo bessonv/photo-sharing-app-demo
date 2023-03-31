@@ -26,7 +26,7 @@ function App() {
           <Route path="/share/:user" element={<SharePhoto socket={socket} />} />
         </Routes>
       </BrowserRouter>
-      <ToastContainer />
+      <ToastContainer autoClose={2000} />
     </>
   );
 }

@@ -22,7 +22,8 @@ function Photos({ socket }: PhotosProps) {
     socket.emit("allPhotos", "search");
 
     socket.on("allPhotosMessage", (data) => {
-      setPhotos([...photos, ...data.photos]);
+      // setPhotos([...photos, ...data.photos]);
+      setPhotos(data.photos);
     });
   }, [socket]);
 
