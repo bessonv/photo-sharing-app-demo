@@ -21,6 +21,11 @@ function Login({ socket }: LoginProps) {
     socket.on("loginError", (error) => {
       toast.error(error);
     });
+
+    return () => {
+      socket.off("loginSuccess");
+      socket.off("loginError");
+    };
   }, [socket, navigate]);
 
   const handleSignIn = (e: React.FormEvent) => {

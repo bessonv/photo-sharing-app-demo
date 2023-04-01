@@ -10,9 +10,16 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { io, connect } from "socket.io-client";
+import { useEffect } from "react";
 
 function App() {
   const socket = connect("http://localhost:4000");
+
+  useEffect(() => {
+    socket.on("disconnect", () => {
+      socket.removeAllListeners();
+    });
+  }, []);
 
   return (
     <>

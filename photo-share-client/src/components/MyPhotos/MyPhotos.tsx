@@ -27,7 +27,11 @@ function MyPhotos({ socket }: MyPhotosProps) {
     socket.on("getMyPhotosMessage", (data) => {
       setPhotos(data.data);
       setUserlink(`http://localhost:3000/share/${data.username}`);
-    })
+    });
+
+    return () => {
+      socket.off("getMyPhotosMessage");
+    }
   }, [socket]);
 
   const handleSignOut = () => {

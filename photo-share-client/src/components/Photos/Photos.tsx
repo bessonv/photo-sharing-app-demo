@@ -22,9 +22,12 @@ function Photos({ socket }: PhotosProps) {
     socket.emit("allPhotos", "search");
 
     socket.on("allPhotosMessage", (data) => {
-      // setPhotos([...photos, ...data.photos]);
       setPhotos(data.photos);
     });
+
+    return () => {
+      socket.off("allPhotosMessage");
+    }
   }, [socket]);
 
   return (

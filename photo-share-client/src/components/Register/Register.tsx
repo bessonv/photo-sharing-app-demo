@@ -17,7 +17,12 @@ function Register({ socket }: RegisterProps) {
     });
     socket.on("registerError", (error) => {
       toast.error(error);
-    })
+    });
+    
+    return () => {
+      socket.off("registerSuccess");
+      socket.off("registerError");
+    };
   }, [socket, navigate]);
   
   const handleRegister = (e: React.FormEvent) => {

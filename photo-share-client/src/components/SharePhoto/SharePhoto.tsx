@@ -25,6 +25,10 @@ function SharePhoto({ socket }: SharePhotoProps) {
 
   useEffect(() => {
     socket.on("sharePhotoMessage", (data) => setPhotos(data));
+
+    return () => {
+      socket.off("sharePhotoMessage");
+    }
   }, [socket]);
 
   return (

@@ -21,6 +21,11 @@ function PhotoContainer({ photos, socket }: PhotoContainerProps) {
       toast.error(data.error_message);
       console.log('can not upload')
     });
+
+    return () => {
+      socket.off("upvoteSuccess");
+      socket.off("upvoteError");
+    };
   }, []);
 
   return (

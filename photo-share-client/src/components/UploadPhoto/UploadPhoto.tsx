@@ -22,6 +22,10 @@ function UploadPhoto({ socket }: UploadPhotoProps) {
       toast.success(data);
       navigate("/photos");
     });
+
+    return () => {
+      socket.off("uploadPhotoMessage");
+    }
   }, [socket, navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
