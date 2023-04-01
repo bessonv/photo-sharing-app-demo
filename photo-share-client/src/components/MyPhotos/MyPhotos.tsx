@@ -5,11 +5,16 @@ import { useNavigate } from "react-router-dom";
 import PhotoContainer from "../PhotoContainer/PhotoContainer";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import MyPhotosProps from "./MyPhotos.props";
+import Nav from "../Nav/Nav";
+
+const menu = [
+  { name: 'Upload Photo', path: '/photo/upload' }
+];
 
 function MyPhotos({ socket }: MyPhotosProps) {
   const navigate = useNavigate();
   const [photos, setPhotos] = useState([]);
-  const [userLink, setUserlink] = useState("");
+  const [userLink, setUserlink] = useState("");  
 
   useEffect(() => {
     function authenticateUser() {
@@ -34,33 +39,20 @@ function MyPhotos({ socket }: MyPhotosProps) {
     }
   }, [socket]);
 
-  const handleSignOut = () => {
-    localStorage.removeItem("_id");
-    localStorage.removeItem("_myEmail");
-    navigate("/");
-  };
-
   const copyToClipBoard = () => alert(`Copied ✅`);
 
   return (
     <div>
-      <nav className='navbar'>
-        <h3>PhotoShare</h3>
-
-        <div className='nav__BtnGroup'>
-          <Link to='/photo/upload'>Upload Photo</Link>
-          <button onClick={handleSignOut}>Sign out</button>
-        </div>
-      </nav>
-
+      <Nav menu={menu}/>
+      <h2 className="header-name">My Photos</h2>
       <div className='copyDiv'>
         <button className="copyContainer">
-        <CopyToClipboard
-          text={userLink}
-          onCopy={copyToClipBoard}
-        >
-          <span className='shareLink'>Copy your share link</span>
-        </CopyToClipboard>
+          <CopyToClipboard
+            text={userLink}
+            onCopy={copyToClipBoard}
+          >
+            <span className='shareLink'>Copy your share link</span>
+          </CopyToClipboard>
         </button>
       </div>
 

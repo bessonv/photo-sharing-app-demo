@@ -23,7 +23,7 @@ const database: User[] = [
   {
     id: 'R3_552s7Q0m-8Dr4AAAJ',
     username: 'user',
-    password: 'qwerty',
+    password: 'dffddf',
     email: 'user@email.com',
     images: [
       {
@@ -52,7 +52,7 @@ const database: User[] = [
   {
     id: 'R2_552s7Q0m-8Dr4AAAA',
     username: 'user2',
-    password: 'qwerty',
+    password: 'dffddf',
     email: 'user2@email.com',
     images: []
   },

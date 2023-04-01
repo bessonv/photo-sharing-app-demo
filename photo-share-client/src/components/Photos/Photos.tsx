@@ -4,6 +4,11 @@ import { useNavigate } from "react-router-dom";
 import PhotoContainer from "../PhotoContainer/PhotoContainer";
 import PhotosProps from "./Photos.props";
 
+const menu = [
+  { name: 'My Photos', path: '/user/photos' },
+  { name: 'Upload Photo', path: '/photo/upload' }
+];
+
 function Photos({ socket }: PhotosProps) {
   const navigate = useNavigate();
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -32,7 +37,8 @@ function Photos({ socket }: PhotosProps) {
 
   return (
     <div>
-      <Nav />
+      <Nav menu={menu}/>
+      <h2 className="header-name">Photos</h2>
       <PhotoContainer photos={photos} socket={socket} />
     </div>
   );

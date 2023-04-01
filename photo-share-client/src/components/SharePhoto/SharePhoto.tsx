@@ -5,6 +5,11 @@ import PhotoContainer from "../PhotoContainer/PhotoContainer";
 import { useNavigate } from "react-router-dom";
 import SharePhotoProps from "./SharePhoto.props";
 
+const menu = [
+  { name: 'My Photos', path: '/user/photos' },
+  { name: 'Upload Photo', path: '/photo/upload' }
+];
+
 function SharePhoto({ socket }: SharePhotoProps) {
   const navigate = useNavigate();
   const [photos, setPhotos] = useState([]);
@@ -33,7 +38,7 @@ function SharePhoto({ socket }: SharePhotoProps) {
 
   return (
     <div>
-      <Nav />
+      <Nav menu={menu}/>
       <PhotoContainer socket={socket} photos={photos} />
     </div>
   );
