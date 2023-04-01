@@ -2,6 +2,7 @@ import * as express from "express";
 import * as http from "http";
 import * as io from "socket.io";
 import cors from "cors";
+import { EmitEvent, ReciveEvent } from "./enums";
 
 const app = express.default();
 const PORT = 4000;
@@ -61,7 +62,7 @@ const database: User[] = [
 socketIO.on('connection', (socket) => {
   console.log(`⚡: ${socket.id} user just connected!`);
 
-  socket.on("login", (data) => {
+  socket.on(ReciveEvent.login, (data) => {
     console.log(data);
     const { username, password } = data;
 
@@ -72,7 +73,7 @@ socketIO.on('connection', (socket) => {
     if (result.length !== 1) {
       return socket.emit("loginError", "Incorrect credentials");
     }
-    socket.emit("loginSuccess", {
+    socket.emit(EmitEvent.loginSuccess, {
       message: "Login successfully",
       data: {
         _id: result[0].id,
@@ -81,7 +82,7 @@ socketIO.on('connection', (socket) => {
     });
   });
 
-  socket.on("register", (data) => {
+  socket.on(ReciveEvent.register, (data) => {
     console.log(data);
     const { username, email, password } = data;
 
@@ -98,12 +99,12 @@ socketIO.on('connection', (socket) => {
         images: [],
       });
 
-      return socket.emit("registerSuccess", "Account created successfully!");
+      return socket.emit(EmitEvent.registerSuccess, "Account created successfully!");
     }
-    socket.emit("registerError", "User already exists");
+    socket.emit(EmitEvent.registerError, "User already exists");
   });
 
-  socket.on("uploadPhoto", (data) => {
+  socket.on(ReciveEvent.uploadPhoto, (data) => {
     const { id, email, photoURL } = data;
     let result = database.filter((user) => user.id === id);
 
@@ -116,37 +117,37 @@ socketIO.on('connection', (socket) => {
     };
 
     result[0]?.images.unshift(newImage);
-    socket.emit("uploadPhotoMessage", "Upload Successful!");
+    socket.emit(EmitEvent.uploadPhotoMessage, "Upload Successful!");
   });
 
-  socket.on("allPhotos", (data) => {
+  socket.on(ReciveEvent.allPhotos, (data) => {
     let images: Image[] = [];
 
     for (let i = 0; i < database.length; i++) {
       images = images.concat(database[i]?.images);
     }
 
-    socket.emit("allPhotosMessage", {
+    socket.emit(EmitEvent.allPhotosMessage, {
       message: "Photos retrieved successfully",
       photos: images,
     });
   });
 
-  socket.on("sharePhoto", (name) => {
+  socket.on(ReciveEvent.sharePhoto, (name) => {
     let result = database.filter((db) => db.username === name);
-    socket.emit("sharePhotoMessage", result[0]?.images);
+    socket.emit(EmitEvent.sharePhotoMessage, result[0]?.images);
   });
 
-  socket.on("getMyPhotos", (id) => {
+  socket.on(ReciveEvent.getMyPhotos, (id) => {
     let result = database.filter((db) => db.id === id);
 
-    socket.emit("getMyPhotosMessage", {
+    socket.emit(EmitEvent.getMyPhotosMessage, {
       data: result[0]?.images,
       username: result[0]?.username
     });
   });
 
-  socket.on("photoUpvote", (data) => {
+  socket.on(ReciveEvent.photoUpvote, (data) => {
     const { userID, photoID } = data;
     let images: Image[] = [];
 
@@ -159,7 +160,7 @@ socketIO.on('connection', (socket) => {
     const item = images.filter((image) => image.id === photoID);
 
     if (item.length < 1) {
-      return socket.emit("upvoteError", {
+      return socket.emit(EmitEvent.upvoteError, {
         error_message: "You cannot upvote your photos",
       });
     }
@@ -172,17 +173,17 @@ socketIO.on('connection', (socket) => {
 
       voters.push(userID);
       
-      socket.emit("allPhotosMessage", {
+      socket.emit(EmitEvent.allPhotosMessage, {
 				message: "Photos retrieved successfully",
 				photos: images,
 			});
-      return socket.emit("upvoteSuccess", {
+      return socket.emit(EmitEvent.upvoteSuccess, {
         message: "Upvote successful",
         item,
       });
     }
 
-    socket.emit("upvoteError", {
+    socket.emit(EmitEvent.upvoteError, {
       error_message: "Duplicate votes are not allowed",
     });
   });

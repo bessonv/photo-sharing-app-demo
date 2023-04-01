@@ -2,29 +2,30 @@ import { useEffect } from "react";
 import { MdOutlineArrowUpward } from "react-icons/md";
 import { toast } from "react-toastify";
 import PhotoContainerProps from "./PhotoContainer.props";
+import { EmitEvent, ReciveEvent } from "../../enums";
 
 function PhotoContainer({ photos, socket }: PhotoContainerProps) {
   const handleUpvote = (id: string) => {
     console.log("Upvote", id);
-    socket.emit("photoUpvote", {
+    socket.emit(EmitEvent.photoUpvote, {
       userID: localStorage.getItem("_id"),
       photoID: id,
     });
   };
 
   useEffect(() => {
-    socket.on("upvoteSuccess", (data) => {
+    socket.on(ReciveEvent.upvoteSuccess, (data) => {
       toast.success(data.message);
       console.log(data.item[0]._ref);
     });
-    socket.on("upvoteError", (data) => {
+    socket.on(ReciveEvent.upvoteError, (data) => {
       toast.error(data.error_message);
       console.log('can not upload')
     });
 
     return () => {
-      socket.off("upvoteSuccess");
-      socket.off("upvoteError");
+      socket.off(ReciveEvent.upvoteSuccess);
+      socket.off(ReciveEvent.upvoteError);
     };
   }, []);
 

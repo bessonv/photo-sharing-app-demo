@@ -5,6 +5,7 @@ import MyPhotosProps from "./MyPhotos.props";
 import Nav from "../Nav/Nav";
 import PhotoContainer from "../PhotoContainer/PhotoContainer";
 import { getAuthentificationId } from "../../helpers/authenticateUser";
+import { EmitEvent, ReciveEvent } from "../../enums";
 
 const menu = [
   { name: 'Upload Photo', path: '/photo/upload' }
@@ -18,20 +19,20 @@ function MyPhotos({ socket }: MyPhotosProps) {
   useEffect(() => {
     const id = getAuthentificationId();
     if (id) {
-      socket.emit("getMyPhotos", id);
+      socket.emit(EmitEvent.getMyPhotos, id);
     } else {
       navigate("/");
     }
   }, [navigate, socket]);
 
   useEffect(() => {
-    socket.on("getMyPhotosMessage", (data) => {
+    socket.on(ReciveEvent.getMyPhotosMessage, (data) => {
       setPhotos(data.data);
       setUserlink(`http://localhost:3000/share/${data.username}`);
     });
 
     return () => {
-      socket.off("getMyPhotosMessage");
+      socket.off(ReciveEvent.getMyPhotosMessage);
     }
   }, [socket]);
 

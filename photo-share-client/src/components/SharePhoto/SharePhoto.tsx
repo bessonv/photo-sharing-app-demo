@@ -5,6 +5,7 @@ import SharePhotoProps from "./SharePhoto.props";
 import Nav from "../Nav/Nav";
 import PhotoContainer from "../PhotoContainer/PhotoContainer";
 import { getAuthentificationId } from "../../helpers/authenticateUser";
+import { EmitEvent, ReciveEvent } from "../../enums";
 
 const menu = [
   { name: 'My Photos', path: '/user/photos' },
@@ -22,15 +23,15 @@ function SharePhoto({ socket }: SharePhotoProps) {
     if (!id) {
       navigate("/");
     } else {
-      socket.emit("sharePhoto", user);
+      socket.emit(EmitEvent.sharePhoto, user);
     }
   }, [navigate, socket, user]);
 
   useEffect(() => {
-    socket.on("sharePhotoMessage", (data) => setPhotos(data));
+    socket.on(ReciveEvent.sharePhotoMessage, (data) => setPhotos(data));
 
     return () => {
-      socket.off("sharePhotoMessage");
+      socket.off(ReciveEvent.sharePhotoMessage);
     }
   }, [socket]);
 

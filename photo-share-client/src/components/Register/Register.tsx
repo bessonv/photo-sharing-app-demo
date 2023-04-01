@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import RegisterProps from "./Register.props";
+import { EmitEvent, ReciveEvent } from "../../enums";
 
 function Register({ socket }: RegisterProps) {
   const navigate = useNavigate();
@@ -11,24 +12,24 @@ function Register({ socket }: RegisterProps) {
   const [email, setEmail] = useState("");
 
   useEffect(() => {
-    socket.on("registerSuccess", (data) => {
+    socket.on(ReciveEvent.registerSuccess, (data) => {
       toast.success(data);
       navigate("/");
     });
-    socket.on("registerError", (error) => {
+    socket.on(ReciveEvent.registerError, (error) => {
       toast.error(error);
     });
-    
+
     return () => {
-      socket.off("registerSuccess");
-      socket.off("registerError");
+      socket.off(ReciveEvent.registerSuccess);
+      socket.off(ReciveEvent.registerError);
     };
   }, [socket, navigate]);
   
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     if (username.trim() && password.trim() && email.trim()) {
-      socket.emit("register", { username, email, password });
+      socket.emit(EmitEvent.register, { username, email, password });
       console.log({ username, email, password });
       setPassword("");
       setUsername("");

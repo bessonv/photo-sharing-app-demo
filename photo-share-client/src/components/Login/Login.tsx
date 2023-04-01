@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import LoginProps from "./Login.props";
+import { EmitEvent, ReciveEvent } from "../../enums";
 
 function Login({ socket }: LoginProps) {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ function Login({ socket }: LoginProps) {
   const [password, setPassword] = useState("");
 
   useEffect(() => {
-    socket.on("loginSuccess", (data) => {
+    socket.on(ReciveEvent.loginSuccess, (data) => {
       toast.success(data.message);
       localStorage.setItem("_id", data.data._id);
       localStorage.setItem("_myEmail", data.data._email);
@@ -18,20 +19,20 @@ function Login({ socket }: LoginProps) {
       navigate("/photos");
     });
 
-    socket.on("loginError", (error) => {
+    socket.on(ReciveEvent.loginError, (error) => {
       toast.error(error);
     });
 
     return () => {
-      socket.off("loginSuccess");
-      socket.off("loginError");
+      socket.off(ReciveEvent.loginSuccess);
+      socket.off(ReciveEvent.loginError);
     };
   }, [socket, navigate]);
 
   const handleSignIn = (e: React.FormEvent) => {
     if (username.trim() && password.trim()) {
       e.preventDefault();
-      socket.emit("login", { username, password });
+      socket.emit(EmitEvent.login, { username, password });
       console.log({ username, password });
       setPassword("");
       setUsername("");

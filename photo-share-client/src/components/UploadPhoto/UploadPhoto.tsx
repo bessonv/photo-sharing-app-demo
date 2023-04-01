@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import UploadPhotoProps from "./UploadPhoto.props";
 import Nav from "../Nav/Nav";
+import { EmitEvent, ReciveEvent } from "../../enums";
 
 const menu = [
   { name: 'My Photos', path: '/user/photos' }
@@ -23,13 +24,13 @@ function UploadPhoto({ socket }: UploadPhotoProps) {
   }, [navigate]);
 
   useEffect(() => {
-    socket.on("uploadPhotoMessage", (data) => {
+    socket.on(ReciveEvent.uploadPhotoMessage, (data) => {
       toast.success(data);
       navigate("/photos");
     });
 
     return () => {
-      socket.off("uploadPhotoMessage");
+      socket.off(ReciveEvent.uploadPhotoMessage);
     }
   }, [socket, navigate]);
 
@@ -39,7 +40,7 @@ function UploadPhoto({ socket }: UploadPhotoProps) {
       const id = localStorage.getItem("_id");
       const email = localStorage.getItem("_myEmail");
 
-      socket.emit("uploadPhoto", { id, email, photoURL });
+      socket.emit(EmitEvent.uploadPhoto, { id, email, photoURL });
   };
 
   return (

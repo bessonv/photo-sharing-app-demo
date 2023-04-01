@@ -4,6 +4,7 @@ import PhotosProps from "./Photos.props";
 import Nav from "../Nav/Nav";
 import PhotoContainer from "../PhotoContainer/PhotoContainer";
 import { getAuthentificationId } from "../../helpers/authenticateUser";
+import { EmitEvent, ReciveEvent } from "../../enums";
 
 const menu = [
   { name: 'My Photos', path: '/user/photos' },
@@ -22,14 +23,14 @@ function Photos({ socket }: PhotosProps) {
   }, [navigate]);
 
   useEffect(() => {
-    socket.emit("allPhotos", "search");
+    socket.emit(EmitEvent.allPhotos, "search");
 
-    socket.on("allPhotosMessage", (data) => {
+    socket.on(ReciveEvent.allPhotosMessage, (data) => {
       setPhotos(data.photos);
     });
 
     return () => {
-      socket.off("allPhotosMessage");
+      socket.off(ReciveEvent.allPhotosMessage);
     }
   }, [socket]);
 
