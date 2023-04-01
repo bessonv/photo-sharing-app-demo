@@ -1,11 +1,11 @@
 
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import PhotoContainer from "../PhotoContainer/PhotoContainer";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import MyPhotosProps from "./MyPhotos.props";
 import Nav from "../Nav/Nav";
+import { getAuthentificationId } from "../../helpers/authenticateUser";
 
 const menu = [
   { name: 'Upload Photo', path: '/photo/upload' }
@@ -17,15 +17,12 @@ function MyPhotos({ socket }: MyPhotosProps) {
   const [userLink, setUserlink] = useState("");  
 
   useEffect(() => {
-    function authenticateUser() {
-      const id = localStorage.getItem("_id");
-      if (!id) {
-        navigate("/");
-      } else {
-        socket.emit("getMyPhotos", id);
-      }
+    const id = getAuthentificationId();
+    if (id) {
+      socket.emit("getMyPhotos", id);
+    } else {
+      navigate("/");
     }
-    authenticateUser();
   }, [navigate, socket]);
 
   useEffect(() => {

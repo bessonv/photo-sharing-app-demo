@@ -3,6 +3,7 @@ import Nav from "../Nav/Nav";
 import { useNavigate } from "react-router-dom";
 import PhotoContainer from "../PhotoContainer/PhotoContainer";
 import PhotosProps from "./Photos.props";
+import { getAuthentificationId } from "../../helpers/authenticateUser";
 
 const menu = [
   { name: 'My Photos', path: '/user/photos' },
@@ -14,13 +15,10 @@ function Photos({ socket }: PhotosProps) {
   const [photos, setPhotos] = useState<Photo[]>([]);
 
   useEffect(() => {
-    function authenticateUser() {
-      const id = localStorage.getItem("_id");
-      if (!id) {
-        navigate("/");
-      }
+    const id = getAuthentificationId();
+    if (!id) {
+      navigate("/");
     }
-    authenticateUser();
   }, [navigate]);
 
   useEffect(() => {

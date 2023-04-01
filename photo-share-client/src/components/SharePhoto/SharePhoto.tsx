@@ -4,6 +4,7 @@ import Nav from "../Nav/Nav";
 import PhotoContainer from "../PhotoContainer/PhotoContainer";
 import { useNavigate } from "react-router-dom";
 import SharePhotoProps from "./SharePhoto.props";
+import { getAuthentificationId } from "../../helpers/authenticateUser";
 
 const menu = [
   { name: 'My Photos', path: '/user/photos' },
@@ -17,15 +18,12 @@ function SharePhoto({ socket }: SharePhotoProps) {
   const { user } = useParams();
 
   useEffect(() => {
-    function authenticateUser() {
-      const id = localStorage.getItem("_id");
-      if (!id) {
-        navigate("/");
-      } else {
-        socket.emit("sharePhoto", user);
-      }
+    const id = getAuthentificationId();
+    if (!id) {
+      navigate("/");
+    } else {
+      socket.emit("sharePhoto", user);
     }
-    authenticateUser();
   }, [navigate, socket, user]);
 
   useEffect(() => {
