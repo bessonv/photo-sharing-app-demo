@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import Nav from "../Nav/Nav";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import PhotoContainer from "../PhotoContainer/PhotoContainer";
 import PhotosProps from "./Photos.props";
+import Nav from "../Nav/Nav";
+import PhotoContainer from "../PhotoContainer/PhotoContainer";
 import { getAuthentificationId } from "../../helpers/authenticateUser";
 
 const menu = [

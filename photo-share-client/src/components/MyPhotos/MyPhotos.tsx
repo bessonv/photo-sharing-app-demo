@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import PhotoContainer from "../PhotoContainer/PhotoContainer";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import MyPhotosProps from "./MyPhotos.props";
 import Nav from "../Nav/Nav";
+import PhotoContainer from "../PhotoContainer/PhotoContainer";
 import { getAuthentificationId } from "../../helpers/authenticateUser";
 
 const menu = [

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { MdOutlineArrowUpward } from "react-icons/md";
 import { toast } from "react-toastify";
 import PhotoContainerProps from "./PhotoContainer.props";
