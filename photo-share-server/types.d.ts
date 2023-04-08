@@ -7,9 +7,9 @@ type Image = {
 }
 
 type User = {
-  id: string,
+  id?: number,
   username: string,
   password: string,
   email: string,
-  images: Image[]
+  // images: Image[]
 }

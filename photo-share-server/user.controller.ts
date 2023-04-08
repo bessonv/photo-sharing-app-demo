@@ -1,17 +1,29 @@
-interface UserController {
-  // model: UserModel;
+import { Database } from "sqlite3";
+import { UserModel } from "./user.model";
 
-  addUser(user: User): void;
-  
+
+interface UserController {
 }
 
 class UserController implements UserController {
-  constructor() {
-    // this.model = 1;
+  private model: UserModel;
+
+  constructor(db: Database) {
+    this.model = new UserModel(db);
   }
 
-  addUser(user: User) {
-    return;
+  async getUser(username: string, password: string) {
+    const user = await this.model.findIfExists(username, password);
+    if (!user) return null;
+    return user;
+  }  
+
+  async addUser(email: string, username: string, password: string) {
+    const existingUser = await this.model.findByCredentials(username, email);
+
+    if (existingUser) return null;
+    const newUser = await this.model.create({ username, email, password });
+    return newUser;    
   }
 }
 

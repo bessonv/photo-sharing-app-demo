@@ -1,13 +1,8 @@
 import { Database } from "sqlite3";
-import { connect } from "../db/db";
+import { connect, insert, update, get, all } from "./db/db";
 
 export interface UserModel {
   _db: Database;
-  id: string;
-  username: string;
-  password: string;
-  email: string;
-
 }
 
 export class UserModel implements UserModel {
@@ -17,10 +12,49 @@ export class UserModel implements UserModel {
 
   public async create(data: User) {
     const { username, email, password } = data;
-    const { lastID: id } = await this._db.run(`
-      INSERT INTO users (name, email, passwords)
-      VALUES (?,?,?)
-    `,username, email, password);
-    return ( id, username, email, password );
+    const sql = 'INSERT INTO users (username, email, password) VALUES (?,?,?)';
+    
+    const lastID = await insert(this._db, sql, [username, email, password]);
+    
+    return { id: lastID, username, email, password };
+  }
+
+  public async update(id: number, data: User) {
+    const { username, email, password } = data;
+    const sql = 'UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?;';
+    const changes = await update(this._db, sql, [username, email, password, id]);
+    if (changes === 0) return undefined;
+    return { id, username, email, password };
+  }
+
+  public async all() {
+    const sql = "SELECT * FROM users;";
+    
+    const users: User[] = await all<User>(this._db, sql);
+    return users;
+  }
+
+  public async findById(id: number) {
+    const sql = "SELECT * FROM users WHERE id=?;";
+
+    const user = await get<User>(this._db, sql, [id]);
+
+    return user;
+  }
+
+  public async findByCredentials(username: string, email: string) {
+    const sql = "SELECT * FROM users WHERE username=?, email=?";
+
+    const user = await get<User>(this._db, sql,[username, email]);
+
+    return user;
+  }
+
+  public async findIfExists(username: string, password: string) {
+    const sql = "SELECT * FROM users WHERE username=?, password=?";
+
+    const user = await get<User>(this._db, sql, [username, password]);
+
+    return user;
   }
 }
