@@ -43,7 +43,7 @@ export class UserModel implements UserModel {
   }
 
   public async findByCredentials(username: string, email: string) {
-    const sql = "SELECT * FROM users WHERE username=?, email=?";
+    const sql = "SELECT * FROM users WHERE username=? AND email=?";
 
     const user = await get<User>(this._db, sql,[username, email]);
 
@@ -51,7 +51,7 @@ export class UserModel implements UserModel {
   }
 
   public async findIfExists(username: string, password: string) {
-    const sql = "SELECT * FROM users WHERE username=?, password=?";
+    const sql = "SELECT * FROM users WHERE username=? AND password=?";
 
     const user = await get<User>(this._db, sql, [username, password]);
 

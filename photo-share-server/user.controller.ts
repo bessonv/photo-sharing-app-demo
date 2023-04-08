@@ -2,10 +2,10 @@ import { Database } from "sqlite3";
 import { UserModel } from "./user.model";
 
 
-interface UserController {
+export interface UserController {
 }
 
-class UserController implements UserController {
+export class UserController implements UserController {
   private model: UserModel;
 
   constructor(db: Database) {
@@ -27,4 +27,4 @@ class UserController implements UserController {
   }
 }
 
-module.exports = UserController;
+// module.exports = UserController;
