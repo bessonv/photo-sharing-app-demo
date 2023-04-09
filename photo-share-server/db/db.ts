@@ -109,10 +109,11 @@ export function get<T>(
 
 export function all<T>(
   db: sqlite3.Database, 
-  query: string
+  query: string,
+  params: (number | string)[] = []
 ): Promise<T[]>{
   return new Promise((resolve, reject) => {
-    db.all(query, function(err, rows: T[]){
+    db.all(query, params, function(err, rows: T[]){
       if (err) {
         reject(err);
       } else {

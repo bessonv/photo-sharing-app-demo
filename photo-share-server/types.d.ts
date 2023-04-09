@@ -1,8 +1,9 @@
 type Image = {
-  id: string,
+  id?: number,
   image_url: string,
   vote_count: 0,
-  votedUsers: string[],
+  user_id: number,
+  // votedUsers: string[],
   _ref: string
 }
 

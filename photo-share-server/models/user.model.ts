@@ -1,11 +1,9 @@
 import { Database } from "sqlite3";
-import { connect, insert, update, get, all } from "./db/db";
+import { connect, insert, update, get, all } from "../db/db";
 
-export interface UserModel {
-  _db: Database;
-}
+export class UserModel {
+  private _db: Database;
 
-export class UserModel implements UserModel {
   constructor(private db: Database) {
     this._db = db;
   }
@@ -21,7 +19,7 @@ export class UserModel implements UserModel {
 
   public async update(id: number, data: User) {
     const { username, email, password } = data;
-    const sql = 'UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?;';
+    const sql = 'UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?;';
     const changes = await update(this._db, sql, [username, email, password, id]);
     if (changes === 0) return undefined;
     return { id, username, email, password };

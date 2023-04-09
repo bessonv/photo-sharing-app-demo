@@ -1,11 +1,7 @@
 import { Database } from "sqlite3";
-import { UserModel } from "./user.model";
+import { UserModel } from "../models/user.model";
 
-
-export interface UserController {
-}
-
-export class UserController implements UserController {
+export class UserController {
   private model: UserModel;
 
   constructor(db: Database) {
