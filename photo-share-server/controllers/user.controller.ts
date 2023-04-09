@@ -21,6 +21,20 @@ export class UserController {
     const newUser = await this.model.create({ username, email, password });
     return newUser;    
   }
+
+  async getUserByName(username: string) {
+    const user = await this.model.findByName(username);
+
+    if (!user) return null;
+    return user;
+  }
+
+  async getUserById(id: number) {
+    const user = await this.model.findById(id);
+
+    if (!user) return null;
+    return user;
+  }
 }
 
 // module.exports = UserController;

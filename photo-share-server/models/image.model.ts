@@ -46,7 +46,7 @@ export class ImageModel {
 
   public async decreaseCount(id: number) {
     const count = await this.getCount(id);
-    if (count === 0) return null;
+    // if (count === 0) return null;
 
     const sql = 'UPDATE images SET vote = ? WHERE id = ?';
 
@@ -69,5 +69,12 @@ export class ImageModel {
 
     const images: Image[] = await all<Image>(this._db, sql, [ userId ]);
     return images;
+  }
+
+  public async getImageById(id: number) {
+    const sql = 'SELECT * FROM images WHERE id = ?;';
+
+    const image: Image = await get<Image>(this._db, sql, [ id ]);
+    return image;
   }
 }

@@ -3,6 +3,9 @@ import * as http from "http";
 import * as io from "socket.io";
 import cors from "cors";
 import { EmitEvent, ReciveEvent } from "./enums";
+import { connect } from "./db/db";
+import { UserController } from "./controllers/user.controller";
+import { ImageController } from "./controllers/image.controller";
 
 const app = express.default();
 const PORT = 4000;
@@ -20,112 +23,95 @@ app.use(express.json());
 app.use(cors);
 
 const generateID = () => Math.random().toString(36).substring(2, 10);
-const database: User[] = [
-  {
-    id: 'R3_552s7Q0m-8Dr4AAAJ',
-    username: 'user',
-    password: 'dffddf',
-    email: 'user@email.com',
-    images: [
-      {
-        id: 'skn71l8m',
-        image_url: 'https://images.nationalgeographic.org/image/upload/t_edhub_resource_key_image/v1652341068/EducationHub/photos/ocean-waves.jpg',
-        vote_count: 0,
-        votedUsers: [],
-        _ref: 'user@email.com',
-      },
-      {
-        id: 'hgiu2m1e',
-        image_url: 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fGZvcmVzdHxlbnwwfHwwfHw%3D&w=1000&q=80',
-        vote_count: 0,
-        votedUsers: [],
-        _ref: 'user@email.com',
-      },
-      {
-        id: 'v3va0z08',
-        image_url: 'https://media.istockphoto.com/id/1288385045/photo/snowcapped-k2-peak.jpg?s=612x612&w=0&k=20&c=sfA4jU8kXKZZqQiy0pHlQ4CeDR0DxCxXhtuTDEW81oo=',
-        vote_count: 0,
-        votedUsers: [],
-        _ref: 'user@email.com',
-      },
-    ],
-  },
-  {
-    id: 'R2_552s7Q0m-8Dr4AAAA',
-    username: 'user2',
-    password: 'dffddf',
-    email: 'user2@email.com',
-    images: []
-  },
-];
+// const database: User[] = [
+//   {
+//     id: 'R3_552s7Q0m-8Dr4AAAJ',
+//     username: 'user',
+//     password: 'dffddf',
+//     email: 'user@email.com',
+//     images: [
+//       {
+//         id: 'skn71l8m',
+//         image_url: 'https://images.nationalgeographic.org/image/upload/t_edhub_resource_key_image/v1652341068/EducationHub/photos/ocean-waves.jpg',
+//         vote_count: 0,
+//         votedUsers: [],
+//         _ref: 'user@email.com',
+//       },
+//       {
+//         id: 'hgiu2m1e',
+//         image_url: 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fGZvcmVzdHxlbnwwfHwwfHw%3D&w=1000&q=80',
+//         vote_count: 0,
+//         votedUsers: [],
+//         _ref: 'user@email.com',
+//       },
+//       {
+//         id: 'v3va0z08',
+//         image_url: 'https://media.istockphoto.com/id/1288385045/photo/snowcapped-k2-peak.jpg?s=612x612&w=0&k=20&c=sfA4jU8kXKZZqQiy0pHlQ4CeDR0DxCxXhtuTDEW81oo=',
+//         vote_count: 0,
+//         votedUsers: [],
+//         _ref: 'user@email.com',
+//       },
+//     ],
+//   },
+//   {
+//     id: 'R2_552s7Q0m-8Dr4AAAA',
+//     username: 'user2',
+//     password: 'dffddf',
+//     email: 'user2@email.com',
+//     images: []
+//   },
+// ];
 
-socketIO.on('connection', (socket) => {
+socketIO.on('connection', async (socket) => {
   console.log(`⚡: ${socket.id} user just connected!`);
+  const database = await connect();
+  const userController = new UserController(database);
+  const imageController = new ImageController(database);
 
-  socket.on(ReciveEvent.login, (data) => {
+  socket.on(ReciveEvent.login, async (data) => {
     console.log(data);
     const { username, password } = data;
 
-    let result = database.filter(
-      (user) => user.username === username && user.password === password
-    );
+    const user = await userController.getUser(username, password);
 
-    if (result.length !== 1) {
+    if (!user) {
       return socket.emit("loginError", "Incorrect credentials");
     }
+
     socket.emit(EmitEvent.loginSuccess, {
       message: "Login successfully",
       data: {
-        _id: result[0].id,
-        _email: result[0].email,
+        _id: user.id,
+        _email: user.email,
       },
     });
   });
 
-  socket.on(ReciveEvent.register, (data) => {
+  socket.on(ReciveEvent.register, async (data) => {
     console.log(data);
     const { username, email, password } = data;
 
-    let result = database.filter(
-      (user) => user.email === email || user.username === username
-    );
+    const user = await userController.addUser(email, username, password);
 
-    if (result.length === 0) {
-      database.push({
-        id: generateID(),
-        username,
-        password,
-        email,
-        images: [],
-      });
-
-      return socket.emit(EmitEvent.registerSuccess, "Account created successfully!");
+    if (!user) {
+      return socket.emit(EmitEvent.registerError, "User already exists");
     }
-    socket.emit(EmitEvent.registerError, "User already exists");
+
+    return socket.emit(EmitEvent.registerSuccess, "Account created successfully!");
   });
 
-  socket.on(ReciveEvent.uploadPhoto, (data) => {
+  socket.on(ReciveEvent.uploadPhoto, async (data) => {
     const { id, email, photoURL } = data;
-    let result = database.filter((user) => user.id === id);
 
-    const newImage: Image = {
-      id: generateID(),
-      image_url: photoURL,
-      vote_count: 0,
-      votedUsers: [],
-      _ref: email,
-    };
+    const image = await imageController.addImage(photoURL, id);
 
-    result[0]?.images.unshift(newImage);
+    if (!image) return;
+
     socket.emit(EmitEvent.uploadPhotoMessage, "Upload Successful!");
   });
 
-  socket.on(ReciveEvent.allPhotos, (data) => {
-    let images: Image[] = [];
-
-    for (let i = 0; i < database.length; i++) {
-      images = images.concat(database[i]?.images);
-    }
+  socket.on(ReciveEvent.allPhotos, async (data) => {
+    const images = await imageController.getAllImages();
 
     socket.emit(EmitEvent.allPhotosMessage, {
       message: "Photos retrieved successfully",
@@ -133,55 +119,54 @@ socketIO.on('connection', (socket) => {
     });
   });
 
-  socket.on(ReciveEvent.sharePhoto, (name) => {
-    let result = database.filter((db) => db.username === name);
-    socket.emit(EmitEvent.sharePhotoMessage, result[0]?.images);
+  socket.on(ReciveEvent.sharePhoto, async (name) => {
+    const user = await userController.getUserByName(name);
+    let images: Image[] = [];
+    if (user?.id) {
+      images = await imageController.getImagesByUserId(user.id);
+    }
+    socket.emit(EmitEvent.sharePhotoMessage, images);
   });
 
-  socket.on(ReciveEvent.getMyPhotos, (id) => {
-    let result = database.filter((db) => db.id === id);
+  socket.on(ReciveEvent.getMyPhotos, async (id) => {
+    const images = await imageController.getImagesByUserId(id);
+    const user =  await userController.getUserById(id);
 
     socket.emit(EmitEvent.getMyPhotosMessage, {
-      data: result[0]?.images,
-      username: result[0]?.username
+      data: images,
+      username: user?.username
     });
   });
 
-  socket.on(ReciveEvent.photoUpvote, (data) => {
+  socket.on(ReciveEvent.photoUpvote, async (data) => {
     const { userID, photoID } = data;
     let images: Image[] = [];
 
-    for (let i = 0; i < database.length; i++) {
-      if (!(database[i].id === userID)) {
-        images = images.concat(database[i]?.images);
-      }
-    }
+    const user = await userController.getUserById(userID);
 
-    const item = images.filter((image) => image.id === photoID);
-
-    if (item.length < 1) {
+    if (user?.id == photoID) {
       return socket.emit(EmitEvent.upvoteError, {
         error_message: "You cannot upvote your photos",
       });
     }
 
-    const voters = item[0]?.votedUsers;
-    const authenticateUpvote = voters.filter((voter) => voter === userID);
+    // TODO: check if already upvoted
 
-    if (!authenticateUpvote.length) {
-      item[0].vote_count += 1;
+    const image = await imageController.getById(photoID);
+    if (!image) return;
 
-      voters.push(userID);
-      
-      socket.emit(EmitEvent.allPhotosMessage, {
-				message: "Photos retrieved successfully",
-				photos: images,
-			});
-      return socket.emit(EmitEvent.upvoteSuccess, {
-        message: "Upvote successful",
-        item,
-      });
-    }
+    await imageController.increaseCount(photoID);
+    images = await imageController.getAllImages();
+
+    socket.emit(EmitEvent.allPhotosMessage, {
+      message: "Photos retrieved successfully",
+      photos: images,
+    });
+
+    return socket.emit(EmitEvent.upvoteSuccess, {
+      message: "Upvote successful",
+      image,
+    });
 
     socket.emit(EmitEvent.upvoteError, {
       error_message: "Duplicate votes are not allowed",

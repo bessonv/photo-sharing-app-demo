@@ -40,6 +40,12 @@ export class UserModel {
     return user;
   }
 
+  public async findByName(username: string) {
+    const sql = "SELECT * FROM users WHERE username=?;";
+
+    return await get<User>(this._db, sql, [username]);
+  }
+
   public async findByCredentials(username: string, email: string) {
     const sql = "SELECT * FROM users WHERE username=? AND email=?";
 

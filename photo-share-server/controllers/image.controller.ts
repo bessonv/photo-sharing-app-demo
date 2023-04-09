@@ -11,6 +11,11 @@ export class ImageController {
     this.userModel = new UserModel(db)
   }
 
+  async getById(id: number) {
+    const image = await this.model.getImageById(id);
+    return image;
+  }
+
   async getImagesByUserId(userId: number) {
     const images = await this.model.getImagesByUserId(userId);
     return images;
