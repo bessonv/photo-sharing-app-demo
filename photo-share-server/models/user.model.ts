@@ -33,7 +33,7 @@ export class UserModel {
   }
 
   public async findById(id: number) {
-    const sql = "SELECT * FROM users WHERE id=?;";
+    const sql = "SELECT * FROM users WHERE user_id=?;";
 
     const user = await get<User>(this._db, sql, [id]);
 

@@ -5,22 +5,25 @@ import PhotoContainerProps from "./PhotoContainer.props";
 import { EmitEvent, ReciveEvent } from "../../enums";
 
 function PhotoContainer({ photos, socket }: PhotoContainerProps) {
-  const handleUpvote = (id: string) => {
+  const handleUpvote = (id: number) => {
     console.log("Upvote", id);
-    socket.emit(EmitEvent.photoUpvote, {
-      userID: localStorage.getItem("_id"),
-      photoID: id,
-    });
+    const storageId = localStorage.getItem("_id");
+    if (storageId) {
+      socket.emit(EmitEvent.photoUpvote, {
+        user_id: parseInt(storageId),
+        image_id: id,
+      });
+    }
   };
 
   useEffect(() => {
     socket.on(ReciveEvent.upvoteSuccess, (data) => {
       toast.success(data.message);
-      console.log(data.item[0]._ref);
+      console.log(data.item);
     });
     socket.on(ReciveEvent.upvoteError, (data) => {
       toast.error(data.error_message);
-      console.log('can not upload')
+      console.log('can not upvote')
     });
 
     return () => {
@@ -32,16 +35,16 @@ function PhotoContainer({ photos, socket }: PhotoContainerProps) {
   return (
     <main className='photoContainer'>
       {photos.map((photo) => (
-        <div className='photo' key={photo.id}>
+        <div className='photo' key={photo.image_id}>
           <div className='imageContainer'>
             <img
               src={photo.image_url}
-              alt={photo.id}
+              alt={`${photo.image_id}`}
               className='photo__image'
             />
           </div>
 
-        <button className='upvoteIcon' onClick={() => handleUpvote(photo.id)}>
+        <button className='upvoteIcon' onClick={() => handleUpvote(photo.image_id)}>
           <MdOutlineArrowUpward
             style={{ fontSize: "20px", marginBottom: "5px" }}
           />

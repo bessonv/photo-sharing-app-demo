@@ -8,71 +8,55 @@ export class ImageModel {
     this._db = db;
   }
 
-  public async create(image_url: string, user_id: number, _ref: string) {
-    // const { image_url, user_id, _ref } = data;
-    const sql = 'INSERT INTO images (image_url, vote_count, user_id, _ref) VALUES (?, 0, ?, ?)';
+  public async create(image_url: string, user_id: number) {
+    // const { image_url, user_id } = data;
+    const sql = 'INSERT INTO images (image_url, user_id) VALUES (?, ?, ?)';
 
-    const lastID = await insert(this._db, sql, [image_url, user_id, _ref]);
+    const lastID = await insert(this._db, sql, [image_url, user_id]);
 
-    return { id: lastID, image_url, vote_count: 0, user_id, _ref };
+    return { id: lastID, image_url, user_id };
   }
 
   public async update(id: number, data: Image) {
-    const { image_url, vote_count, user_id, _ref } = data;
-    const sql = 'UPDATE images SET image_url = ?, vote_count = ?, user_id = ?, _ref = ? WHERE id = ?;';
+    const { image_url, user_id } = data;
+    const sql = 'UPDATE images SET image_url = ?, user_id = ? WHERE user_id = ?;';
 
-    const changes = await update(this._db, sql, [image_url, vote_count, user_id, _ref]);
+    const changes = await update(this._db, sql, [image_url, user_id, id]);
 
     if (changes === 0) return null;
-    return { id, image_url, vote_count, user_id, _ref };
+    return { id, image_url, user_id };
   }
 
   public async all() {
-    const sql = "SELECT * FROM images;";
+    const sql = `
+      SELECT img.*, SUM(v.value) as vote_count FROM images as img
+      LEFT JOIN votes as v USING(image_id)
+      GROUP BY img.image_id;
+    `;
 
     const images: Image[] = await all<Image>(this._db, sql);
     return images;
   }
 
-  public async increaseCount(id: number) {
-    const count = await this.getCount(id);
-    const sql = 'UPDATE images SET vote_count = ? WHERE id = ?';
-
-    const changes = await update(this._db, sql, [ count + 1, id ]);
-
-    if (changes === 0) return null;
-    return count + 1;
-  }
-
-  public async decreaseCount(id: number) {
-    const count = await this.getCount(id);
-    // if (count === 0) return null;
-
-    const sql = 'UPDATE images SET vote = ? WHERE id = ?';
-
-    const changes = await update(this._db, sql, [ count - 1, id ]);
-
-    if (changes === 0) return null;
-    return count - 1;
-  }
-
-  public async getCount(id: number) {
-    const sql = 'SELECT * FROM images WHERE id = ?;';
-
-    const image = await get<Image>(this._db, sql, [ id ]);
-
-    return image.vote_count;
-  }
-
   public async getImagesByUserId(userId: number) {
-    const sql = 'SELECT * FROM images WHERE user_id = ?;';
+    const sql = `
+      SELECT img.*, SUM(v.value) as vote_count FROM images as img
+      LEFT JOIN votes as v USING(image_id)
+      WHERE img.user_id = ?
+      GROUP BY img.image_id;
+    `;
 
     const images: Image[] = await all<Image>(this._db, sql, [ userId ]);
     return images;
   }
 
   public async getImageById(id: number) {
-    const sql = 'SELECT * FROM images WHERE id = ?;';
+    const sql = `
+      SELECT img.*, SUM(v.value) as vote_count FROM images as img
+      LEFT JOIN votes as v USING(image_id)
+      WHERE img.image_id = ?
+      GROUP BY img.image_id;
+    `;
 
     const image: Image = await get<Image>(this._db, sql, [ id ]);
     return image;

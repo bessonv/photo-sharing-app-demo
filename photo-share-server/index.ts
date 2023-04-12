@@ -22,46 +22,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors);
 
-const generateID = () => Math.random().toString(36).substring(2, 10);
-// const database: User[] = [
-//   {
-//     id: 'R3_552s7Q0m-8Dr4AAAJ',
-//     username: 'user',
-//     password: 'dffddf',
-//     email: 'user@email.com',
-//     images: [
-//       {
-//         id: 'skn71l8m',
-//         image_url: 'https://images.nationalgeographic.org/image/upload/t_edhub_resource_key_image/v1652341068/EducationHub/photos/ocean-waves.jpg',
-//         vote_count: 0,
-//         votedUsers: [],
-//         _ref: 'user@email.com',
-//       },
-//       {
-//         id: 'hgiu2m1e',
-//         image_url: 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fGZvcmVzdHxlbnwwfHwwfHw%3D&w=1000&q=80',
-//         vote_count: 0,
-//         votedUsers: [],
-//         _ref: 'user@email.com',
-//       },
-//       {
-//         id: 'v3va0z08',
-//         image_url: 'https://media.istockphoto.com/id/1288385045/photo/snowcapped-k2-peak.jpg?s=612x612&w=0&k=20&c=sfA4jU8kXKZZqQiy0pHlQ4CeDR0DxCxXhtuTDEW81oo=',
-//         vote_count: 0,
-//         votedUsers: [],
-//         _ref: 'user@email.com',
-//       },
-//     ],
-//   },
-//   {
-//     id: 'R2_552s7Q0m-8Dr4AAAA',
-//     username: 'user2',
-//     password: 'dffddf',
-//     email: 'user2@email.com',
-//     images: []
-//   },
-// ];
-
 socketIO.on('connection', async (socket) => {
   console.log(`⚡: ${socket.id} user just connected!`);
   const database = await connect();
@@ -81,7 +41,7 @@ socketIO.on('connection', async (socket) => {
     socket.emit(EmitEvent.loginSuccess, {
       message: "Login successfully",
       data: {
-        _id: user.id,
+        _id: user.user_id,
         _email: user.email,
       },
     });
@@ -122,8 +82,8 @@ socketIO.on('connection', async (socket) => {
   socket.on(ReciveEvent.sharePhoto, async (name) => {
     const user = await userController.getUserByName(name);
     let images: Image[] = [];
-    if (user?.id) {
-      images = await imageController.getImagesByUserId(user.id);
+    if (user?.user_id) {
+      images = await imageController.getImagesByUserId(user.user_id);
     }
     socket.emit(EmitEvent.sharePhotoMessage, images);
   });
@@ -139,24 +99,31 @@ socketIO.on('connection', async (socket) => {
   });
 
   socket.on(ReciveEvent.photoUpvote, async (data) => {
-    const { userID, photoID } = data;
-    let images: Image[] = [];
+    const { user_id, image_id } = data;
 
-    const user = await userController.getUserById(userID);
+    // const user = await userController.getUserById(userID);
+    const image = await imageController.getById(image_id);
+    console.log(data, image);
+    if (!image) {
+      return socket.emit(EmitEvent.upvoteError, {
+        error_message: "Photo does not exist",
+      });
+    }
 
-    if (user?.id == photoID) {
+    if (image.user_id == user_id) {
       return socket.emit(EmitEvent.upvoteError, {
         error_message: "You cannot upvote your photos",
       });
     }
 
-    // TODO: check if already upvoted
+    const count = await imageController.increaseCount(user_id, image_id);
+    if (count === null) {
+      return socket.emit(EmitEvent.upvoteError, {
+        error_message: "Duplicate votes are not allowed",
+      });
+    }
 
-    const image = await imageController.getById(photoID);
-    if (!image) return;
-
-    await imageController.increaseCount(photoID);
-    images = await imageController.getAllImages();
+    const images = await imageController.getAllImages();
 
     socket.emit(EmitEvent.allPhotosMessage, {
       message: "Photos retrieved successfully",
@@ -166,10 +133,6 @@ socketIO.on('connection', async (socket) => {
     return socket.emit(EmitEvent.upvoteSuccess, {
       message: "Upvote successful",
       image,
-    });
-
-    socket.emit(EmitEvent.upvoteError, {
-      error_message: "Duplicate votes are not allowed",
     });
   });
 

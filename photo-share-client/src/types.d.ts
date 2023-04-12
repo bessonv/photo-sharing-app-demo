@@ -1,13 +1,12 @@
 type Photo = {
-  id: string,
+  image_id: number,
   image_url: string,
   vote_count: number,
-  vote_users?: string[],
-  _ref: string
+  user_id: number
 }
 
 type User = {
-  id: string,
+  user_id: number,
   username: string,
   password: string,
   email: string,

@@ -8,7 +8,7 @@ export async function connect() {
 
   await db.exec(`
     CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT NOT NULL,
       email TEXT NOT NULL UNIQUE,
       password TEXT NOT NULL
@@ -16,11 +16,26 @@ export async function connect() {
   `);
   await db.exec(`
     CREATE TABLE IF NOT EXISTS images (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      image_id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
       image_url TEXT NOT NULL,
-      vote_count INTEGER NOT NULL,
-      _ref TEXT
+      FOREIGN KEY (user_id)
+        REFERENCES users (user_id)
+          ON DELETE CASCADE
+          ON UPDATE NO ACTION
+    );
+  `);
+    
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS votes (
+      vote_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      image_id INTEGER NOT NULL,
+      value INTEGER NOT NULL,
+      FOREIGN KEY (image_id)
+        REFERENCES images
+          ON DELETE CASCADE
+          ON UPDATE NO ACTION
     );
   `);
   // await populate(db);
@@ -36,26 +51,27 @@ async function populate(db: sqlite3.Database) {
       ('user2', 'dffddf', 'user2@email.com');
   `);
   await db.exec(`
-    INSERT INTO images (image_url, vote_count, user_id, _ref)
+    INSERT INTO images (image_url, user_id)
     VALUES
       (
         'https://images.nationalgeographic.org/image/upload/t_edhub_resource_key_image/v1652341068/EducationHub/photos/ocean-waves.jpg',
-        0,
-        1,
-        'user@email.com'
+        1
       ),
       (
         'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fGZvcmVzdHxlbnwwfHwwfHw%3D&w=1000&q=80',
-        0,
-        1,
-        'user@email.com'
+        1
       ),
       (
         'https://media.istockphoto.com/id/1288385045/photo/snowcapped-k2-peak.jpg?s=612x612&w=0&k=20&c=sfA4jU8kXKZZqQiy0pHlQ4CeDR0DxCxXhtuTDEW81oo=',
-        0,
-        1,
-        'user@email.com'
+        1
       )
+  `);
+  await db.exec(`
+    INSERT INTO votes (image_id, user_id, value)
+    VALUES 
+      (3, 2, 1),
+      (3, 2, -1),
+      (1, 2, -1)
   `);
 }
 
@@ -118,6 +134,22 @@ export function all<T>(
         reject(err);
       } else {
         resolve(rows);
+      }
+    });
+  });
+}
+
+export function remove(
+  db: sqlite3.Database, 
+  query: string,
+  params: (number | string)[] = []
+): Promise<number> {
+  return new Promise((resolve, reject) => {
+    db.run(query, params, function(err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(this.changes);
       }
     });
   });
