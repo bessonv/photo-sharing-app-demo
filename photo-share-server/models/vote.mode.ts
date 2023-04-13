@@ -12,11 +12,11 @@ export class VoteModel {
     const sql = 'INSERT INTO votes (user_id, image_id, value) VALUES (?, ?, ?)';
 
     const lastID = await insert(this._db, sql, [userId, imageId, value]);
-    return { id: lastID, userId, imageId, value };
+    return { vote_id: lastID, userId, imageId, value };
   }
 
   public async update(userId: number, imageId: number, value: -1 | 0 | 1) {
-    const sql = 'UPDATE votes SET value = ? WHERE user_id = ?, image_id = ?;';
+    const sql = 'UPDATE votes SET value = ? WHERE user_id = ? AND image_id = ?;';
 
     const changes = await update(this._db, sql, [value, userId, imageId]);
     if (changes === 0) return null;
@@ -31,10 +31,12 @@ export class VoteModel {
   }
 
   public async isVoteExists(userId: number, imageId: number) {
-    const sql = `SELECT COUNT(*) FROM votes WHERE user_id = ? AND image_id = ?`;
-
-    const count = await get<number>(this._db, sql, [userId, imageId]);
-    return count > 0;
+    const sql = `SELECT COUNT(*) as count FROM votes WHERE user_id = ? AND image_id = ?`;
+    type countObject = {
+      count: number
+    }
+    const count = await get<countObject>(this._db, sql, [userId, imageId]);
+    return count.count > 0;
   }
 
   public async getVote(userId: number, imageId: number) {

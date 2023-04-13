@@ -13,7 +13,7 @@ const menu = [
 
 function Photos({ socket }: PhotosProps) {
   const navigate = useNavigate();
-  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [photos, setPhotos] = useState<Image[]>([]);
 
   useEffect(() => {
     const id = getAuthentificationId();

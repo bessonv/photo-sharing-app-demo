@@ -31,6 +31,7 @@ socketIO.on('connection', async (socket) => {
   socket.on(ReciveEvent.login, async (data) => {
     console.log(data);
     const { username, password } = data;
+    if (!username || !password) return;
 
     const user = await userController.getUser(username, password);
 
@@ -50,6 +51,7 @@ socketIO.on('connection', async (socket) => {
   socket.on(ReciveEvent.register, async (data) => {
     console.log(data);
     const { username, email, password } = data;
+    if (!username || !email || !password) return;
 
     const user = await userController.addUser(email, username, password);
 
@@ -61,9 +63,10 @@ socketIO.on('connection', async (socket) => {
   });
 
   socket.on(ReciveEvent.uploadPhoto, async (data) => {
-    const { id, email, photoURL } = data;
+    const { user_id, photoURL } = data;
+    if (!user_id || !photoURL) return;
 
-    const image = await imageController.addImage(photoURL, id);
+    const image = await imageController.addImage(photoURL, user_id);
 
     if (!image) return;
 
@@ -88,9 +91,10 @@ socketIO.on('connection', async (socket) => {
     socket.emit(EmitEvent.sharePhotoMessage, images);
   });
 
-  socket.on(ReciveEvent.getMyPhotos, async (id) => {
-    const images = await imageController.getImagesByUserId(id);
-    const user =  await userController.getUserById(id);
+  socket.on(ReciveEvent.getMyPhotos, async (user_id) => {
+    if (!user_id) return;
+    const images = await imageController.getImagesByUserId(user_id);
+    const user =  await userController.getUserById(user_id);
 
     socket.emit(EmitEvent.getMyPhotosMessage, {
       data: images,
@@ -100,10 +104,9 @@ socketIO.on('connection', async (socket) => {
 
   socket.on(ReciveEvent.photoUpvote, async (data) => {
     const { user_id, image_id } = data;
+    if (!user_id || !image_id) return;
 
-    // const user = await userController.getUserById(userID);
     const image = await imageController.getById(image_id);
-    console.log(data, image);
     if (!image) {
       return socket.emit(EmitEvent.upvoteError, {
         error_message: "Photo does not exist",

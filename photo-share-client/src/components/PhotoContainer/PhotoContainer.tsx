@@ -49,7 +49,7 @@ function PhotoContainer({ photos, socket }: PhotoContainerProps) {
             style={{ fontSize: "20px", marginBottom: "5px" }}
           />
           <p style={{ fontSize: "12px", color: "#ce7777" }}>
-            {photo.vote_count}
+            {photo.vote_count === null ? 0 : photo.vote_count}
           </p>
         </button>
         </div>

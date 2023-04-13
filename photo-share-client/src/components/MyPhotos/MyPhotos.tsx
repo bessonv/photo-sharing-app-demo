@@ -17,9 +17,9 @@ function MyPhotos({ socket }: MyPhotosProps) {
   const [userLink, setUserlink] = useState("");  
 
   useEffect(() => {
-    const id = getAuthentificationId();
-    if (id) {
-      socket.emit(EmitEvent.getMyPhotos, id);
+    const user_id = getAuthentificationId();
+    if (user_id) {
+      socket.emit(EmitEvent.getMyPhotos, user_id);
     } else {
       navigate("/");
     }

@@ -1,5 +1,5 @@
 import { Database } from "sqlite3";
-import { connect, insert, update, get, all } from "../db/db";
+import { insert, update, get, all } from "../db/db";
 
 export class UserModel {
   private _db: Database;
@@ -14,7 +14,7 @@ export class UserModel {
     
     const lastID = await insert(this._db, sql, [username, email, password]);
     
-    return { id: lastID, username, email, password };
+    return { user_id: lastID, username, email, password };
   }
 
   public async update(id: number, data: User) {
@@ -22,7 +22,7 @@ export class UserModel {
     const sql = 'UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?;';
     const changes = await update(this._db, sql, [username, email, password, id]);
     if (changes === 0) return undefined;
-    return { id, username, email, password };
+    return { user_id: id, username, email, password };
   }
 
   public async all() {

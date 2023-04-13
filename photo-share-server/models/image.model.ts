@@ -14,7 +14,7 @@ export class ImageModel {
 
     const lastID = await insert(this._db, sql, [image_url, user_id]);
 
-    return { id: lastID, image_url, user_id };
+    return { image_id: lastID, image_url, user_id };
   }
 
   public async update(id: number, data: Image) {
@@ -24,7 +24,7 @@ export class ImageModel {
     const changes = await update(this._db, sql, [image_url, user_id, id]);
 
     if (changes === 0) return null;
-    return { id, image_url, user_id };
+    return { image_id: id, image_url, user_id };
   }
 
   public async all() {

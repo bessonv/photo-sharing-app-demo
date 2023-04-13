@@ -1,4 +1,4 @@
-type Photo = {
+type Image = {
   image_id: number,
   image_url: string,
   vote_count: number,
@@ -10,5 +10,5 @@ type User = {
   username: string,
   password: string,
   email: string,
-  images: Photo[]
+  images: Image[]
 }

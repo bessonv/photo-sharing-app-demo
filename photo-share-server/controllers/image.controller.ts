@@ -31,6 +31,7 @@ export class ImageController {
 
   async increaseCount(userId: number, imageId: number) {
     const exists = await this.voteModel.isVoteExists(userId, imageId);
+    console.log(`is Exists: ${exists}`);
     if (exists) {
       const vote = await this.voteModel.getVote(userId, imageId);
       if (vote.value == 1) {
