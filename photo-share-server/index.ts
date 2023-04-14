@@ -86,7 +86,8 @@ socketIO.on('connection', async (socket) => {
     const user = await userController.getUserByName(name);
     let images: Image[] = [];
     if (user?.user_id) {
-      images = await imageController.getImagesByUserId(user.user_id);
+      const userImages = await imageController.getImagesByUserId(user.user_id);
+      images = userImages ?? [];
     }
     socket.emit(EmitEvent.sharePhotoMessage, images);
   });

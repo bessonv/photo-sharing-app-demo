@@ -12,30 +12,45 @@ export class UserModel {
     const { username, email, password } = data;
     const sql = 'INSERT INTO users (username, email, password) VALUES (?,?,?)';
     
-    const lastID = await insert(this._db, sql, [username, email, password]);
-    
-    return { user_id: lastID, username, email, password };
+    const lastID = await insert(this._db, sql, [username, email, password])
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
+    return lastID ? { user_id: lastID, username, email, password } : null;
   }
 
   public async update(id: number, data: User) {
     const { username, email, password } = data;
     const sql = 'UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?;';
-    const changes = await update(this._db, sql, [username, email, password, id]);
-    if (changes === 0) return undefined;
-    return { user_id: id, username, email, password };
+    const changes = await update(this._db, sql, [username, email, password, id])
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
+    return changes ? { user_id: id, username, email, password } : null;
   }
 
   public async all() {
     const sql = "SELECT * FROM users;";
     
-    const users: User[] = await all<User>(this._db, sql);
+    const users: User[] | null = await all<User>(this._db, sql)
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
+
     return users;
   }
 
   public async findById(id: number) {
     const sql = "SELECT * FROM users WHERE user_id=?;";
 
-    const user = await get<User>(this._db, sql, [id]);
+    const user = await get<User>(this._db, sql, [id])
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
 
     return user;
   }
@@ -43,13 +58,22 @@ export class UserModel {
   public async findByName(username: string) {
     const sql = "SELECT * FROM users WHERE username=?;";
 
-    return await get<User>(this._db, sql, [username]);
+    const user = await get<User>(this._db, sql, [username])
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
+    return user;
   }
 
   public async findByCredentials(username: string, email: string) {
     const sql = "SELECT * FROM users WHERE username=? AND email=?";
 
-    const user = await get<User>(this._db, sql,[username, email]);
+    const user = await get<User>(this._db, sql,[username, email])
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
 
     return user;
   }
@@ -57,7 +81,11 @@ export class UserModel {
   public async findIfExists(username: string, password: string) {
     const sql = "SELECT * FROM users WHERE username=? AND password=?";
 
-    const user = await get<User>(this._db, sql, [username, password]);
+    const user = await get<User>(this._db, sql, [username, password])
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
 
     return user;
   }

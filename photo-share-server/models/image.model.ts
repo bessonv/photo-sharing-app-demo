@@ -12,19 +12,26 @@ export class ImageModel {
     // const { image_url, user_id } = data;
     const sql = 'INSERT INTO images (image_url, user_id) VALUES (?, ?, ?)';
 
-    const lastID = await insert(this._db, sql, [image_url, user_id]);
+    const lastID = await insert(this._db, sql, [image_url, user_id])
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
 
-    return { image_id: lastID, image_url, user_id };
+    return lastID ? { image_id: lastID, image_url, user_id } : null;
   }
 
   public async update(id: number, data: Image) {
     const { image_url, user_id } = data;
     const sql = 'UPDATE images SET image_url = ?, user_id = ? WHERE user_id = ?;';
 
-    const changes = await update(this._db, sql, [image_url, user_id, id]);
+    const changes = await update(this._db, sql, [image_url, user_id, id])
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
 
-    if (changes === 0) return null;
-    return { image_id: id, image_url, user_id };
+    return changes ? { image_id: id, image_url, user_id } : null;
   }
 
   public async all() {
@@ -34,7 +41,11 @@ export class ImageModel {
       GROUP BY img.image_id;
     `;
 
-    const images: Image[] = await all<Image>(this._db, sql);
+    const images: Image[] | null = await all<Image>(this._db, sql)
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
     return images;
   }
 
@@ -46,7 +57,11 @@ export class ImageModel {
       GROUP BY img.image_id;
     `;
 
-    const images: Image[] = await all<Image>(this._db, sql, [ userId ]);
+    const images: Image[] | null = await all<Image>(this._db, sql, [ userId ])
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
     return images;
   }
 
@@ -58,7 +73,11 @@ export class ImageModel {
       GROUP BY img.image_id;
     `;
 
-    const image: Image = await get<Image>(this._db, sql, [ id ]);
+    const image: Image | null = await get<Image>(this._db, sql, [ id ])
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
     return image;
   }
 }
