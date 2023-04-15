@@ -38,41 +38,8 @@ export async function connect() {
           ON UPDATE NO ACTION
     );
   `);
-  // await populate(db);
   
   return db;
-}
-
-async function populate(db: sqlite3.Database) {
-  await db.exec(`
-    INSERT INTO users (username, password, email)
-    VALUES
-      ('user', 'dffddf', 'user@email.com'),
-      ('user2', 'dffddf', 'user2@email.com');
-  `);
-  await db.exec(`
-    INSERT INTO images (image_url, user_id)
-    VALUES
-      (
-        'https://images.nationalgeographic.org/image/upload/t_edhub_resource_key_image/v1652341068/EducationHub/photos/ocean-waves.jpg',
-        1
-      ),
-      (
-        'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fGZvcmVzdHxlbnwwfHwwfHw%3D&w=1000&q=80',
-        1
-      ),
-      (
-        'https://media.istockphoto.com/id/1288385045/photo/snowcapped-k2-peak.jpg?s=612x612&w=0&k=20&c=sfA4jU8kXKZZqQiy0pHlQ4CeDR0DxCxXhtuTDEW81oo=',
-        1
-      )
-  `);
-  await db.exec(`
-    INSERT INTO votes (image_id, user_id, value)
-    VALUES 
-      (3, 2, 1),
-      (3, 2, -1),
-      (1, 2, -1)
-  `);
 }
 
 export function insert(

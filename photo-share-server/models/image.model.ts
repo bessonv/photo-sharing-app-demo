@@ -10,7 +10,7 @@ export class ImageModel {
 
   public async create(image_url: string, user_id: number) {
     // const { image_url, user_id } = data;
-    const sql = 'INSERT INTO images (image_url, user_id) VALUES (?, ?, ?)';
+    const sql = 'INSERT INTO images (image_url, user_id) VALUES (?, ?)';
 
     const lastID = await insert(this._db, sql, [image_url, user_id])
       .catch((e) => {

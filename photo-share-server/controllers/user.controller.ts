@@ -1,5 +1,6 @@
 import { Database } from "sqlite3";
 import { UserModel } from "../models/user.model";
+import { getHash } from "../helpers/hash";
 
 export class UserController {
   private model: UserModel;
@@ -9,7 +10,8 @@ export class UserController {
   }
 
   async getUser(username: string, password: string) {
-    const user = await this.model.findIfExists(username, password);
+    const passwordHash = getHash(password);
+    const user = await this.model.findIfExists(username, passwordHash);
     if (!user) return null;
     return user;
   }  
@@ -18,8 +20,14 @@ export class UserController {
     const existingUser = await this.model.findByCredentials(username, email);
 
     if (existingUser) return null;
-    const newUser = await this.model.create({ username, email, password });
-    return newUser;    
+    const passwordHash = getHash(password);
+    const newUser: User = {
+      username,
+      email,
+      password: passwordHash
+    }
+    const user = await this.model.create(newUser);
+    return user;    
   }
 
   async getUserByName(username: string) {
@@ -36,5 +44,3 @@ export class UserController {
     return user;
   }
 }
-
-// module.exports = UserController;
