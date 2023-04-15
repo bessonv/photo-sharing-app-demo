@@ -14,8 +14,7 @@ export class UserModel {
     
     const lastID = await insert(this._db, sql, [username, email, password])
       .catch((e) => {
-        console.error(e);
-        return null;
+        throw new Error(`Error while creating user: ${e}`);
       });
     return lastID ? { user_id: lastID, username, email, password } : null;
   }
@@ -25,8 +24,7 @@ export class UserModel {
     const sql = 'UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?;';
     const changes = await update(this._db, sql, [username, email, password, id])
       .catch((e) => {
-        console.error(e);
-        return null;
+        throw new Error(`Error while updating user: ${e}`);
       });
     return changes ? { user_id: id, username, email, password } : null;
   }
@@ -36,8 +34,7 @@ export class UserModel {
     
     const users: User[] | null = await all<User>(this._db, sql)
       .catch((e) => {
-        console.error(e);
-        return null;
+        throw new Error(`Error while getting all users: ${e}`);
       });
 
     return users;
@@ -48,8 +45,7 @@ export class UserModel {
 
     const user = await get<User>(this._db, sql, [id])
       .catch((e) => {
-        console.error(e);
-        return null;
+        throw new Error(`Error while getting user: ${e}`);
       });
 
     return user;
@@ -60,8 +56,7 @@ export class UserModel {
 
     const user = await get<User>(this._db, sql, [username])
       .catch((e) => {
-        console.error(e);
-        return null;
+        throw new Error(`Error while getting user: ${e}`);
       });
     return user;
   }
@@ -71,8 +66,7 @@ export class UserModel {
 
     const user = await get<User>(this._db, sql,[username, email])
       .catch((e) => {
-        console.error(e);
-        return null;
+        throw new Error(`Error while getting user: ${e}`);
       });
 
     return user;
@@ -83,8 +77,7 @@ export class UserModel {
 
     const user = await get<User>(this._db, sql, [username, password])
       .catch((e) => {
-        console.error(e);
-        return null;
+        throw new Error(`Error while getting user: ${e}`);
       });
 
     return user;

@@ -14,8 +14,7 @@ export class ImageModel {
 
     const lastID = await insert(this._db, sql, [image_url, user_id])
       .catch((e) => {
-        console.error(e);
-        return null;
+        throw new Error(`Error while creating image: ${e}`);
       });
 
     return lastID ? { image_id: lastID, image_url, user_id } : null;
@@ -27,8 +26,7 @@ export class ImageModel {
 
     const changes = await update(this._db, sql, [image_url, user_id, id])
       .catch((e) => {
-        console.error(e);
-        return null;
+        throw new Error(`Error while updating image: ${e}`);
       });
 
     return changes ? { image_id: id, image_url, user_id } : null;
@@ -41,10 +39,9 @@ export class ImageModel {
       GROUP BY img.image_id;
     `;
 
-    const images: Image[] | null = await all<Image>(this._db, sql)
+    const images: Image[] = await all<Image>(this._db, sql)
       .catch((e) => {
-        console.error(e);
-        return null;
+        throw new Error(`Error while getting all images: ${e}`);
       });
     return images;
   }
@@ -57,10 +54,9 @@ export class ImageModel {
       GROUP BY img.image_id;
     `;
 
-    const images: Image[] | null = await all<Image>(this._db, sql, [ userId ])
+    const images: Image[] = await all<Image>(this._db, sql, [ userId ])
       .catch((e) => {
-        console.error(e);
-        return null;
+        throw new Error(`Error while getting image: ${e}`);
       });
     return images;
   }
@@ -73,10 +69,9 @@ export class ImageModel {
       GROUP BY img.image_id;
     `;
 
-    const image: Image | null = await get<Image>(this._db, sql, [ id ])
+    const image: Image = await get<Image>(this._db, sql, [ id ])
       .catch((e) => {
-        console.error(e);
-        return null;
+        throw new Error(`Error while getting image: ${e}`);
       });
     return image;
   }
