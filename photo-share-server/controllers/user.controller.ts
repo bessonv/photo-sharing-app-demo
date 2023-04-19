@@ -9,17 +9,33 @@ export class UserController {
     this.model = new UserModel(db);
   }
 
+  async logUser(username: string, password: string) {
+    if (!username || !password) {
+      throw new Error(`login error, empty username or password`);
+    }
+    const user = await this.getUser(username, password);
+    return user;
+  }
+
+  async registerUser(username: string, email: string, password: string) {
+    if (!username || !email || !password) {
+      throw new Error(`register error, empty username or password`);
+    }
+    const user = await this.addUser(email, username, password);
+    return user;
+  }
+
   async getUser(username: string, password: string) {
     const passwordHash = getHash(password);
     const user = await this.model.findIfExists(username, passwordHash);
-    if (!user) return null;
+    if (!user) throw new Error(`login error, user not found`);;
     return user;
   }  
 
   async addUser(email: string, username: string, password: string) {
     const existingUser = await this.model.findByCredentials(username, email);
 
-    if (existingUser) return null;
+    if (existingUser) throw new Error(`User already exists`);
     const passwordHash = getHash(password);
     const newUser: User = {
       username,

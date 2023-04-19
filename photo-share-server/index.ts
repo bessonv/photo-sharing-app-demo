@@ -6,6 +6,7 @@ import { EmitEvent, ReciveEvent } from "./enums";
 import { connect } from "./db/db";
 import { UserController } from "./controllers/user.controller";
 import { ImageController } from "./controllers/image.controller";
+import { configurateUserSocket } from "./sockets/user.socket";
 
 const app = express.default();
 const PORT = 4000;
@@ -28,39 +29,7 @@ socketIO.on('connection', async (socket) => {
   const userController = new UserController(database);
   const imageController = new ImageController(database);
 
-  socket.on(ReciveEvent.login, async (data) => {
-    console.log(data);
-    const { username, password } = data;
-    if (!username || !password) return;
-
-    const user = await userController.getUser(username, password);
-
-    if (!user) {
-      return socket.emit("loginError", "Incorrect credentials");
-    }
-
-    socket.emit(EmitEvent.loginSuccess, {
-      message: "Login successfully",
-      data: {
-        _id: user.user_id,
-        _email: user.email,
-      },
-    });
-  });
-
-  socket.on(ReciveEvent.register, async (data) => {
-    console.log(data);
-    const { username, email, password } = data;
-    if (!username || !email || !password) return;
-
-    const user = await userController.addUser(email, username, password);
-
-    if (!user) {
-      return socket.emit(EmitEvent.registerError, "User already exists");
-    }
-
-    return socket.emit(EmitEvent.registerSuccess, "Account created successfully!");
-  });
+  configurateUserSocket(socket, database);
 
   socket.on(ReciveEvent.uploadPhoto, async (data) => {
     const { user_id, photoURL } = data;
