@@ -20,6 +20,8 @@ export class ImageController {
   }
 
   async getImagesByUserId(userId: number) {
+    const user = this.userModel.findById(userId);
+    if (!user) throw new Error(`User not found`);
     const images = await this.model.getImagesByUserId(userId);
     return images;
   }
@@ -29,12 +31,36 @@ export class ImageController {
     return images;
   }
 
+  async getImagesByUserName(username: string) {
+    const user = await this.userModel.findByName(username);
+    if (!user || !user.user_id) throw new Error(`User not found`);
+
+    const userImages = await this.getImagesByUserId(user.user_id);
+    const images = userImages ?? [];
+    return images;
+  }
+
+  async upvoteImage(upvotingUserId: number, imageId: number) {
+    if (!upvotingUserId) throw new Error(`User not found`);
+    if (!imageId) throw new Error(`Image not found`);
+
+    const image = await this.getById(imageId);
+    if (!image) throw new Error(`Image not found`);
+
+    if (image.image_id === upvotingUserId) {
+      throw new Error(`You cannot upvote your photos`);
+    }
+
+    await this.increaseCount(upvotingUserId, imageId);
+    return image;
+  }
+
   async increaseCount(userId: number, imageId: number) {
     const exists = await this.voteModel.isVoteExists(userId, imageId);
     if (exists) {
       const vote = await this.voteModel.getVote(userId, imageId);
       if (vote.value == 1) {
-        return null; // or throw exception
+        throw new Error(`Duplicate votes are not allowed`);
       }
       if (vote.value == -1) {
         return await this.voteModel.update(userId, imageId, 0);
@@ -64,7 +90,9 @@ export class ImageController {
   }
 
   async addImage(image_url: string, user_id: number) {
-    // const user = await this.userModel.findById(user_id);
-    return await this.model.create(image_url, user_id);
+    if (!image_url || !user_id) {
+      throw new Error(`error of adding image, undefined image_url`);
+    }
+    await this.model.create(image_url, user_id);
   }
 }

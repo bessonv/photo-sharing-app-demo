@@ -34,7 +34,6 @@ export class UserController {
 
   async addUser(email: string, username: string, password: string) {
     const existingUser = await this.model.findByCredentials(username, email);
-
     if (existingUser) throw new Error(`User already exists`);
     const passwordHash = getHash(password);
     const newUser: User = {
@@ -48,15 +47,13 @@ export class UserController {
 
   async getUserByName(username: string) {
     const user = await this.model.findByName(username);
-
-    if (!user) return null;
+    if (!user) throw new Error('User not found');
     return user;
   }
 
   async getUserById(id: number) {
     const user = await this.model.findById(id);
-
-    if (!user) return null;
+    if (!user) throw new Error('User not found');
     return user;
   }
 }

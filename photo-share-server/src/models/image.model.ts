@@ -1,5 +1,6 @@
 import { Database } from "sqlite3";
-import { insert, update, get, all } from "../db/db";
+import { insert, update, get, all } from "../../db/db";
+import { DatabaseError } from "../helpers/errors";
 
 export class ImageModel {
   private _db: Database;
@@ -14,7 +15,7 @@ export class ImageModel {
 
     const lastID = await insert(this._db, sql, [image_url, user_id])
       .catch((e) => {
-        throw new Error(`Error while creating image: ${e}`);
+        throw new DatabaseError(`Error while creating image: ${e}`);
       });
 
     return lastID ? { image_id: lastID, image_url, user_id } : null;
@@ -26,7 +27,7 @@ export class ImageModel {
 
     const changes = await update(this._db, sql, [image_url, user_id, id])
       .catch((e) => {
-        throw new Error(`Error while updating image: ${e}`);
+        throw new DatabaseError(`Error while updating image: ${e}`);
       });
 
     return changes ? { image_id: id, image_url, user_id } : null;
@@ -41,7 +42,7 @@ export class ImageModel {
 
     const images: Image[] = await all<Image>(this._db, sql)
       .catch((e) => {
-        throw new Error(`Error while getting all images: ${e}`);
+        throw new DatabaseError(`Error while getting all images: ${e}`);
       });
     return images;
   }
@@ -56,7 +57,7 @@ export class ImageModel {
 
     const images: Image[] = await all<Image>(this._db, sql, [ userId ])
       .catch((e) => {
-        throw new Error(`Error while getting image: ${e}`);
+        throw new DatabaseError(`Error while getting image: ${e}`);
       });
     return images;
   }
@@ -71,7 +72,7 @@ export class ImageModel {
 
     const image: Image = await get<Image>(this._db, sql, [ id ])
       .catch((e) => {
-        throw new Error(`Error while getting image: ${e}`);
+        throw new DatabaseError(`Error while getting image: ${e}`);
       });
     return image;
   }

@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { EmitEvent, ReciveEvent } from "../enums";
+import { EmitEvent, ReciveEvent } from "../../enums";
 import { UserController } from "../controllers/user.controller";
 import { Database } from "sqlite3";
 
