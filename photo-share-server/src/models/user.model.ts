@@ -1,5 +1,6 @@
 import { Database } from "sqlite3";
-import { insert, update, get, all } from "../db/db";
+import { insert, update, get, all } from "../../db/db";
+import { DatabaseError } from "../helpers/errors";
 
 export class UserModel {
   private _db: Database;
@@ -14,7 +15,7 @@ export class UserModel {
     
     const lastID = await insert(this._db, sql, [username, email, password])
       .catch((e) => {
-        throw new Error(`Error while creating user: ${e}`);
+        throw new DatabaseError(`Error while creating user: ${e}`);
       });
     return lastID ? { user_id: lastID, username, email, password } : null;
   }
@@ -24,7 +25,7 @@ export class UserModel {
     const sql = 'UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?;';
     const changes = await update(this._db, sql, [username, email, password, id])
       .catch((e) => {
-        throw new Error(`Error while updating user: ${e}`);
+        throw new DatabaseError(`Error while updating user: ${e}`);
       });
     return changes ? { user_id: id, username, email, password } : null;
   }
@@ -34,7 +35,7 @@ export class UserModel {
     
     const users: User[] | null = await all<User>(this._db, sql)
       .catch((e) => {
-        throw new Error(`Error while getting all users: ${e}`);
+        throw new DatabaseError(`Error while getting all users: ${e}`);
       });
 
     return users;
@@ -45,7 +46,7 @@ export class UserModel {
 
     const user = await get<User>(this._db, sql, [id])
       .catch((e) => {
-        throw new Error(`Error while getting user: ${e}`);
+        throw new DatabaseError(`Error while getting user: ${e}`);
       });
 
     return user;
@@ -56,7 +57,7 @@ export class UserModel {
 
     const user = await get<User>(this._db, sql, [username])
       .catch((e) => {
-        throw new Error(`Error while getting user: ${e}`);
+        throw new DatabaseError(`Error while getting user: ${e}`);
       });
     return user;
   }
@@ -66,7 +67,7 @@ export class UserModel {
 
     const user = await get<User>(this._db, sql,[username, email])
       .catch((e) => {
-        throw new Error(`Error while getting user: ${e}`);
+        throw new DatabaseError(`Error while getting user: ${e}`);
       });
 
     return user;
@@ -77,7 +78,7 @@ export class UserModel {
 
     const user = await get<User>(this._db, sql, [username, password])
       .catch((e) => {
-        throw new Error(`Error while getting user: ${e}`);
+        throw new DatabaseError(`Error while getting user: ${e}`);
       });
 
     return user;

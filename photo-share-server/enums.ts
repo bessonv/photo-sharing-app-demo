@@ -16,6 +16,8 @@ export enum EmitEvent {
   getMyPhotosMessage = 'getMyPhotosMessage',
   upvoteSuccess = 'upvoteSuccess',
   upvoteError = 'upvoteError',
+  uploadError = 'uploadError',
+  notFoundError = 'notFoundError',
   allPhotosMessage = 'allPhotosMessage',
   sharePhotoMessage = 'sharePhotoMessage',
   uploadPhotoMessage = 'uploadPhotoMessage',

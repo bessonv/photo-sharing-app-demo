@@ -1,5 +1,6 @@
 import { Database } from "sqlite3";
-import { insert, update, get, all, remove } from "../db/db";
+import { insert, update, get, all, remove } from "../../db/db";
+import { DatabaseError } from "../helpers/errors";
 
 export class VoteModel {
   private _db: Database;
@@ -13,7 +14,7 @@ export class VoteModel {
 
     const lastID = await insert(this._db, sql, [userId, imageId, value])
       .catch((e) => {
-        throw new Error(`Error while creating vote: ${e}`);
+        throw new DatabaseError(`Error while creating vote: ${e}`);
       });
     return lastID ? { vote_id: lastID, userId, imageId, value } : null;
   }
@@ -23,7 +24,7 @@ export class VoteModel {
 
     const changes = await update(this._db, sql, [value, userId, imageId])
       .catch((e) => {
-        throw new Error(`Error while updating vote: ${e}`);
+        throw new DatabaseError(`Error while updating vote: ${e}`);
       });
     return changes ? { value } : null;
   }
@@ -33,7 +34,7 @@ export class VoteModel {
 
     const changes = await remove(this._db, sql, [id])
       .catch((e) => {
-        throw new Error(`Error while deleting vote: ${e}`);
+        throw new DatabaseError(`Error while deleting vote: ${e}`);
       });
     return changes;
   }
@@ -45,7 +46,7 @@ export class VoteModel {
     }
     const count = await get<countObject>(this._db, sql, [userId, imageId])
       .catch((e) => {
-        throw new Error(`Error while getting vote: ${e}`);
+        throw new DatabaseError(`Error while getting vote: ${e}`);
       });
     return count ? (count.count > 0) : null;
   }
@@ -55,7 +56,7 @@ export class VoteModel {
 
     const vote = await get<Vote>(this._db, sql, [userId, imageId])
       .catch((e) => {
-        throw new Error(`Error while getting vote: ${e}`);
+        throw new DatabaseError(`Error while getting vote: ${e}`);
       });
     return vote;
   }
@@ -67,7 +68,7 @@ export class VoteModel {
 
     const count = await get<number>(this._db, sql, [id])
       .catch((e) => {
-        throw new Error(`Error while getting vote count: ${e}`);
+        throw new DatabaseError(`Error while getting vote count: ${e}`);
       });
     return count;
   }
