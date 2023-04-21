@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import LoginProps from "./Login.props";
 import { EmitEvent, ReciveEvent } from "../../enums";
+import { setAuthentificationEmail, setAuthentificationId } from "../../helpers/authenticateUser";
 
 function Login({ socket }: LoginProps) {
   const navigate = useNavigate();
@@ -13,8 +14,8 @@ function Login({ socket }: LoginProps) {
   useEffect(() => {
     socket.on(ReciveEvent.loginSuccess, (data) => {
       toast.success(data.message);
-      localStorage.setItem("_id", data.data._id);
-      localStorage.setItem("_myEmail", data.data._email);
+      setAuthentificationEmail(data.data._email);
+      setAuthentificationId(data.data._id);
 
       navigate("/photos");
     });

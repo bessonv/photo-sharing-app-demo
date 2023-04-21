@@ -3,8 +3,9 @@ import * as http from "http";
 import * as io from "socket.io";
 import cors from "cors";
 import { connect } from "./db/db";
-import { configurateUserSocket } from "./src/sockets/user.socket";
-import { configurateImageSocket } from "./src/sockets/image.socket";
+import { UserSocket } from "./src/sockets/user.socket";
+import { ImageSocket } from "./src/sockets/image.socket";
+import { handleErrors } from "./src/helpers/errors";
 
 const app = express.default();
 const PORT = 4000;
@@ -24,9 +25,20 @@ app.use(cors);
 socketIO.on('connection', async (socket) => {
   console.log(`⚡: ${socket.id} user just connected!`);
   const database = await connect();
+  const imageSocket = new ImageSocket(database, socket);
+  const userSocket = new UserSocket(database, socket);
 
-  configurateUserSocket(socket, database);
-  configurateImageSocket(socket, database);
+  socket.onAny(async (event, data) => {
+    try {
+      await imageSocket.configurateSocket(event, data);
+      await userSocket.configurateSocket(event, data);
+    } catch(error) {
+      const errorMessage = handleErrors(error);
+      if (!errorMessage) return;
+      socket.emit(errorMessage.event, { error_message: errorMessage.message });
+    }
+  });
+
 
   socket.on('disconnect', () => {
     socket.disconnect();

@@ -3,14 +3,15 @@ import { MdOutlineArrowUpward } from "react-icons/md";
 import { toast } from "react-toastify";
 import PhotoContainerProps from "./PhotoContainer.props";
 import { EmitEvent, ReciveEvent } from "../../enums";
+import { getAuthentificationId } from "../../helpers/authenticateUser";
 
 function PhotoContainer({ photos, socket }: PhotoContainerProps) {
   const handleUpvote = (id: number) => {
     console.log("Upvote", id);
-    const storageId = localStorage.getItem("_id");
+    const storageId = getAuthentificationId();
     if (storageId) {
       socket.emit(EmitEvent.photoUpvote, {
-        user_id: parseInt(storageId),
+        user_id: storageId,
         image_id: id,
       });
     }

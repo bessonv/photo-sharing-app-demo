@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import UploadPhotoProps from "./UploadPhoto.props";
 import Nav from "../Nav/Nav";
 import { EmitEvent, ReciveEvent } from "../../enums";
+import { getAuthentificationEmail, getAuthentificationId } from "../../helpers/authenticateUser";
 
 const menu = [
   { name: 'My Photos', path: '/user/photos' }
@@ -14,13 +15,10 @@ function UploadPhoto({ socket }: UploadPhotoProps) {
   const [photoURL, setPhotoURL] = useState("");
 
   useEffect(() => {
-    function authenticateUser() {
-      const id = localStorage.getItem("_id");
-      if (!id) {
-        navigate("/");
-      }
+    const id = getAuthentificationId();
+    if (!id) {
+      navigate("/");
     }
-    authenticateUser();
   }, [navigate]);
 
   useEffect(() => {
@@ -37,8 +35,8 @@ function UploadPhoto({ socket }: UploadPhotoProps) {
   const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
       console.log(photoURL);
-      const user_id = localStorage.getItem("_id");
-      const email = localStorage.getItem("_myEmail");
+      const user_id = getAuthentificationId();
+      const email = getAuthentificationEmail();
 
       socket.emit(EmitEvent.uploadPhoto, { user_id, email, photoURL });
   };

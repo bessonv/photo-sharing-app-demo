@@ -2,72 +2,51 @@ import { Socket } from "socket.io";
 import { EmitEvent, ReciveEvent } from "../../enums";
 import { ImageController } from "../controllers/image.controller";
 import { Database } from "sqlite3";
-import { DatabaseError, NotFoundError, UploadError, UpvoteError, ValidationError } from "../helpers/errors";
 
-export function configurateImageSocket(socket: Socket, database: Database) {
-  try {
-    const imageController = new ImageController(database);
+export class ImageSocket implements appSocket {
+  database: Database;
+  socket: Socket;
 
-    socket.on(ReciveEvent.uploadPhoto, async (data) => {
+  constructor(db: Database, socket: Socket) {
+    this.database = db;
+    this.socket = socket;
+  }
+
+  async configurateSocket(event: string, data: any) {
+    const imageController = new ImageController(this.database);
+
+    if(event === ReciveEvent.uploadPhoto) {
       await imageController.addImage(data.photoURL, data.user_id);
-      socket.emit(EmitEvent.uploadPhotoMessage, "Upload Successful!");
-    });
-
-    socket.on(ReciveEvent.allPhotos, async (data) => {
+      this.socket.emit(EmitEvent.uploadPhotoMessage, "Upload Successful!");
+    }
+    if(event === ReciveEvent.allPhotos) {
       const images = await imageController.getAllImages();
-      socket.emit(EmitEvent.allPhotosMessage, {
+      this.socket.emit(EmitEvent.allPhotosMessage, {
         message: "Photos retrieved successfully",
         photos: images,
       });
-    });
-
-    socket.on(ReciveEvent.sharePhoto, async (name) => {
-      const images = await imageController.getImagesByUserName(name);
-      socket.emit(EmitEvent.sharePhotoMessage, images);
-    });
-
-    socket.on(ReciveEvent.getMyPhotos, async (user_id) => {
-      const images = await imageController.getImagesByUserId(user_id);
-      socket.emit(EmitEvent.getMyPhotosMessage, {
+    }
+    if(event === ReciveEvent.sharePhoto) {
+      const images = await imageController.getImagesByUserName(data);
+      this.socket.emit(EmitEvent.sharePhotoMessage, images);
+    }
+    if(event === ReciveEvent.getMyPhotos) {
+      const images = await imageController.getImagesByUserId(data);
+      this.socket.emit(EmitEvent.getMyPhotosMessage, {
         data: images
       });
-    });
-
-    socket.on(ReciveEvent.photoUpvote, async (data) => {
+    }
+    if(event === ReciveEvent.photoUpvote) {
       const image = await imageController.upvoteImage(data.user_id, data.image_id);
-      const allImages = await imageController.getAllImages();
-      socket.emit(EmitEvent.upvoteSuccess, {
+      const allImages = await imageController.getAllImages(); 
+      this.socket.emit(EmitEvent.upvoteSuccess, {
         message: "Upvote successful",
         image
       });
-      socket.emit(EmitEvent.allPhotosMessage, {
+      this.socket.emit(EmitEvent.allPhotosMessage, {
         message: "Photos retrieved successfully",
         photos: allImages
       });
-    });
-  } catch(error) {
-    if (error instanceof UploadError) {
-      console.error(error.message);
-      return socket.emit(EmitEvent.uploadError, error.message);
-    }
-    if (error instanceof UpvoteError) {
-      console.error(error.message);
-      return socket.emit(EmitEvent.upvoteError, {
-        error_message: error.message,
-      });
-    }
-    if (error instanceof NotFoundError) {
-      console.error(error.message);
-      return socket.emit(EmitEvent.notFoundError, {
-        error_message: error.message
-      });
-    }
-    if (
-      error instanceof DatabaseError ||
-      error instanceof ValidationError
-    ) {
-      console.error(error.message);
-      return;
     }
   }
 }

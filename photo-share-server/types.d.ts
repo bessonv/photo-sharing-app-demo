@@ -21,3 +21,10 @@ type Vote = {
   image_id: number,
   value: -1 | 0 | 1
 }
+
+interface appSocket {
+  database: Database;
+  socket: Socket;
+
+  configurateSocket(event: string, data: any): void;
+}

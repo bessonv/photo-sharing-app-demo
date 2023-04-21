@@ -1,3 +1,4 @@
+import { EmitEvent } from "../../enums";
 
 export class DatabaseError extends Error {
   constructor(message: string) {
@@ -53,4 +54,32 @@ export class UploadError extends Error {
     this.message = `Upload error`;
     Object.setPrototypeOf(this, UploadError.prototype);
   }
+}
+
+export function handleErrors(error: unknown) {
+  if (error instanceof UploadError) {
+    console.error(error.message);
+    return { event: EmitEvent.uploadError, message: error.message };
+  }
+  if (error instanceof UpvoteError) {
+    console.error(error.message);
+    return { event: EmitEvent.upvoteError, message: error.message };
+  }
+  if (error instanceof NotFoundError) {
+    console.error(error.message);
+    return { event: EmitEvent.notFoundError, message: error.message };
+  }
+  if (error instanceof LoginError) {
+    console.log(error.message);
+    return { event: EmitEvent.loginError, message: `Incorrect credentials, ${error.message}`};
+  }
+  if (
+    error instanceof DatabaseError ||
+    error instanceof ValidationError
+  ) {
+    console.error(error.message);
+    return null;
+  }
+  console.log(error);
+  return null;
 }

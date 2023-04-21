@@ -1,12 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import NavProps from "./Nav.props";
+import { removeAuthentificationIdEmail } from "../../helpers/authenticateUser";
 
 function Nav({ menu }: NavProps) {
   const navigate = useNavigate();
 
   const handleSignOut = () => {
-    localStorage.removeItem("_id");
-    localStorage.removeItem("_myEmail");
+    removeAuthentificationIdEmail();
     navigate("/");
   };
 

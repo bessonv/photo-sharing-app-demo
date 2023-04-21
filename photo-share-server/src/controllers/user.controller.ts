@@ -21,7 +21,7 @@ export class UserController {
     return user;
   }
 
-  async registerUser(username: string, email: string, password: string) {
+  async registerUser(email: string, username: string, password: string) {
     if (!(typeof username == "string")) {
       throw new ValidationError(`Username has wrong type ${typeof username}, must be string`);
     }
@@ -44,7 +44,7 @@ export class UserController {
     }
     const passwordHash = getHash(password);
     const user = await this.model.findIfExists(username, passwordHash);
-    if (!user) throw new LoginError(`login error, user not found`);;
+    if (!user) throw new LoginError(`login error, user ${username} not found`);;
     return user;
   }  
 
