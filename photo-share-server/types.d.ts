@@ -3,8 +3,6 @@ type Image = {
   image_url: string,
   vote_count: number,
   user_id: number,
-  // votedUsers: string[],
-  // _ref: string
 }
 
 type User = {
@@ -12,7 +10,6 @@ type User = {
   username: string,
   password: string,
   email: string,
-  // images: Image[]
 }
 
 type Vote = {

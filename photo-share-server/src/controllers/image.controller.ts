@@ -3,30 +3,34 @@ import { ImageModel } from "../models/image.model";
 import { UserModel } from "../models/user.model";
 import { VoteModel } from "../models/vote.mode";
 import { NotFoundError, UpvoteError, ValidationError } from "../helpers/errors";
+import { UserValidator } from "../validations/user.validator";
+import { ImageValidator } from "../validations/image.validator";
 
 export class ImageController {
   private model: ImageModel;
   private userModel: UserModel;
   private voteModel: VoteModel;
+  private userValidator: UserValidator;
+  private imageValidator: ImageValidator;
 
   constructor(db: Database) {
     this.model = new ImageModel(db);
     this.userModel = new UserModel(db)
     this.voteModel = new VoteModel(db);
+    this.userValidator = new UserValidator();
+    this.imageValidator = new ImageValidator();
   }
 
   async getById(id: number) {
-    if (!(typeof id == "number")) {
-      throw new ValidationError(`Image id has wrong type ${typeof id}, must be number`);
-    }
+    this.imageValidator.validateId(id);
+    
     const image = await this.model.getImageById(id);
     return image;
   }
 
   async getImagesByUserId(userId: number) {
-    if (!(typeof userId == "number")) {
-      throw new ValidationError(`User Id has wrong type ${typeof userId}, must be number`);
-    }
+    this.userValidator.validateId(userId);
+    
     const user = this.userModel.findById(userId);
     if (!user) throw new NotFoundError(`User not found`, `user_id: ${userId}`);
     const images = await this.model.getImagesByUserId(userId);
@@ -39,6 +43,8 @@ export class ImageController {
   }
 
   async getImagesByUserName(username: string) {
+    this.userValidator.validateName(username);
+
     const user = await this.userModel.findByName(username);
     if (!user || !user.user_id) throw new NotFoundError(`User not found`, `username: ${username}`);
 
@@ -48,12 +54,9 @@ export class ImageController {
   }
 
   async upvoteImage(upvotingUserId: number, imageId: number) {
-    if (!(typeof upvotingUserId == "number")) {
-      throw new ValidationError(`User Id has wrong type ${typeof upvotingUserId}, must be number`);
-    }
-    if (!(typeof imageId == "number")) {
-      throw new ValidationError(`Image Id has wrong type ${typeof upvotingUserId}, must be number`);
-    }
+    this.userValidator.validateId(upvotingUserId);
+    this.imageValidator.validateId(imageId);
+    
     const image = await this.getById(imageId);
     if (!image) throw new NotFoundError(`Image not found`, `image_id: ${imageId}`);
 
@@ -100,12 +103,9 @@ export class ImageController {
   }
 
   async addImage(image_url: string, user_id: number) {
-    if (!(typeof image_url == "string")) {
-      throw new ValidationError(`Image url has wrong type ${typeof image_url}, must be string`);
-    }
-    if (!(typeof user_id == "number")) {
-      throw new ValidationError(`User Id has wrong type ${typeof user_id}, must be number`);
-    }
+    this.userValidator.validateId(user_id);
+    this.imageValidator.validateUrl(image_url);
+
     await this.model.create(image_url, user_id);
   }
 }

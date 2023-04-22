@@ -2,46 +2,38 @@ import { Database } from "sqlite3";
 import { UserModel } from "../models/user.model";
 import { getHash } from "../helpers/hash";
 import { LoginError, NotFoundError, ValidationError } from "../helpers/errors";
+import { UserValidator } from "../validations/user.validator";
 
 export class UserController {
   private model: UserModel;
+  private userValidator: UserValidator;
 
   constructor(db: Database) {
     this.model = new UserModel(db);
+    this.userValidator = new UserValidator();
   }
 
   async logUser(username: string, password: string) {
-    if (!(typeof username == "string")) {
-      throw new ValidationError(`Username has wrong type ${typeof username}, must be string`);
-    }
-    if (!(typeof password == "string")) {
-      throw new ValidationError(`Password has wrong type ${typeof password}, must be string`);
-    }
+    this.userValidator.validateName(username);
+    this.userValidator.validatePassword(password);
+
     const user = await this.getUser(username, password);
     return user;
   }
 
   async registerUser(email: string, username: string, password: string) {
-    if (!(typeof username == "string")) {
-      throw new ValidationError(`Username has wrong type ${typeof username}, must be string`);
-    }
-    if (!(typeof email == "string")) {
-      throw new ValidationError(`Email has wrong type ${typeof email}, must be string`);
-    }
-    if (!(typeof password == "string")) {
-      throw new ValidationError(`Password has wrong type ${typeof password}, must be string`);
-    }
+    this.userValidator.validateEmail(email);
+    this.userValidator.validateName(username);
+    this.userValidator.validatePassword(password);
+
     const user = await this.addUser(email, username, password);
     return user;
   }
 
   async getUser(username: string, password: string) {
-    if (!(typeof username == "string")) {
-      throw new ValidationError(`Username has wrong type ${typeof username}, must be string`);
-    }
-    if (!(typeof password == "string")) {
-      throw new ValidationError(`Password has wrong type ${typeof password}, must be string`);
-    }
+    this.userValidator.validateName(username);
+    this.userValidator.validatePassword(password);
+
     const passwordHash = getHash(password);
     const user = await this.model.findIfExists(username, passwordHash);
     if (!user) throw new LoginError(`login error, user ${username} not found`);;
