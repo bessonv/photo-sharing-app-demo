@@ -24,19 +24,23 @@ export class ValidationError extends Error {
 
 export class NotFoundError extends Error {
   statusCode = 400;
-  constructor(message: string) {
+  log: string;
+  constructor(message: string, log: string) {
     super(message);
     this.message = `
       404 Error:
         ${message}
     `;
+    this.log = log;
     Object.setPrototypeOf(this, NotFoundError.prototype);
   }
 }
 
 export class UpvoteError extends Error {
-  constructor(message: string) {
+  log: string;
+  constructor(message: string, log: string) {
     super(message);
+    this.log = log;
     Object.setPrototypeOf(this, UpvoteError.prototype);
   }
 }
@@ -62,7 +66,7 @@ export function handleErrors(error: unknown) {
     return { event: EmitEvent.uploadError, message: error.message };
   }
   if (error instanceof UpvoteError) {
-    console.error(error.message);
+    console.error(error.message, error.log);
     return { event: EmitEvent.upvoteError, message: error.message };
   }
   if (error instanceof NotFoundError) {

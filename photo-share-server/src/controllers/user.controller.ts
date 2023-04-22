@@ -63,13 +63,13 @@ export class UserController {
 
   async getUserByName(username: string) {
     const user = await this.model.findByName(username);
-    if (!user) throw new NotFoundError('User not found');
+    if (!user) throw new NotFoundError('User not found', `username: ${username}`);
     return user;
   }
 
   async getUserById(id: number) {
     const user = await this.model.findById(id);
-    if (!user) throw new NotFoundError('User not found');
+    if (!user) throw new NotFoundError('User not found', `user_id: ${id}`);
     return user;
   }
 }

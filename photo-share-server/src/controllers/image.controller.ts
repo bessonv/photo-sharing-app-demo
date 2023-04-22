@@ -28,7 +28,7 @@ export class ImageController {
       throw new ValidationError(`User Id has wrong type ${typeof userId}, must be number`);
     }
     const user = this.userModel.findById(userId);
-    if (!user) throw new NotFoundError(`User not found`);
+    if (!user) throw new NotFoundError(`User not found`, `user_id: ${userId}`);
     const images = await this.model.getImagesByUserId(userId);
     return images;
   }
@@ -40,7 +40,7 @@ export class ImageController {
 
   async getImagesByUserName(username: string) {
     const user = await this.userModel.findByName(username);
-    if (!user || !user.user_id) throw new NotFoundError(`User not found`);
+    if (!user || !user.user_id) throw new NotFoundError(`User not found`, `username: ${username}`);
 
     const userImages = await this.getImagesByUserId(user.user_id);
     const images = userImages ?? [];
@@ -55,10 +55,10 @@ export class ImageController {
       throw new ValidationError(`Image Id has wrong type ${typeof upvotingUserId}, must be number`);
     }
     const image = await this.getById(imageId);
-    if (!image) throw new NotFoundError(`Image not found`);
+    if (!image) throw new NotFoundError(`Image not found`, `image_id: ${imageId}`);
 
-    if (image.image_id === upvotingUserId) {
-      throw new UpvoteError(`You cannot upvote your photos`);
+    if (image.user_id === upvotingUserId) {
+      throw new UpvoteError(`You cannot upvote your photos`, `image_id: ${image.image_id}, user_id: ${image.user_id}`);
     }
 
     await this.increaseCount(upvotingUserId, imageId);
@@ -70,7 +70,7 @@ export class ImageController {
     if (exists) {
       const vote = await this.voteModel.getVote(userId, imageId);
       if (vote.value == 1) {
-        throw new UpvoteError(`Duplicate votes are not allowed`);
+        throw new UpvoteError(`Duplicate votes are not allowed`, `image_id: ${imageId}, user_id: ${userId}`);
       }
       if (vote.value == -1) {
         return await this.voteModel.update(userId, imageId, 0);
@@ -87,7 +87,7 @@ export class ImageController {
     if (exists) {
       const vote = await this.voteModel.getVote(userId, imageId);
       if (vote.value == -1) {
-        throw new UpvoteError(`Duplicate votes are not allowed`);
+        throw new UpvoteError(`Duplicate votes are not allowed`, `image_id: ${imageId}, user_id: ${userId}`);
       }
       if (vote.value == 1) {
         return await this.voteModel.update(userId, imageId, 0);
