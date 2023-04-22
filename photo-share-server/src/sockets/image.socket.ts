@@ -16,7 +16,7 @@ export class ImageSocket implements appSocket {
     const imageController = new ImageController(this.database);
 
     if(event === ReciveEvent.uploadPhoto) {
-      await imageController.addImage(data.photoURL, data.user_id);
+      await imageController.addImage(data);
       this.socket.emit(EmitEvent.uploadPhotoMessage, "Upload Successful!");
     }
     if(event === ReciveEvent.allPhotos) {
@@ -37,7 +37,7 @@ export class ImageSocket implements appSocket {
       });
     }
     if(event === ReciveEvent.photoUpvote) {
-      const image = await imageController.upvoteImage(data.user_id, data.image_id);
+      const image = await imageController.upvoteImage(data);
       const allImages = await imageController.getAllImages(); 
       this.socket.emit(EmitEvent.upvoteSuccess, {
         message: "Upvote successful",

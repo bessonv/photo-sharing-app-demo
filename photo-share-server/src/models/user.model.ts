@@ -9,7 +9,7 @@ export class UserModel {
     this._db = db;
   }
 
-  public async create(data: User) {
+  public async create(data: NewUser) {
     const { username, email, password } = data;
     const sql = 'INSERT INTO users (username, email, password) VALUES (?,?,?)';
     

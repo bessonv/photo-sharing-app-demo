@@ -1,12 +1,33 @@
 type Image = {
-  image_id?: number,
+  image_id: number,
   image_url: string,
   vote_count: number,
   user_id: number,
 }
 
+type NewImage = {
+  user_id: number,
+  image_url: string,
+}
+
+type UpvoteImage = {
+  user_id: number,
+  image_id: number
+}
+
 type User = {
-  user_id?: number,
+  user_id: number,
+  username: string,
+  password: string,
+  email: string,
+}
+
+type LogUser = {
+  username: string;
+  password: string;
+}
+
+type NewUser = {
   username: string,
   password: string,
   email: string,

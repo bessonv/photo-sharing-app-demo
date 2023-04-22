@@ -13,7 +13,8 @@ export class UserController {
     this.userValidator = new UserValidator();
   }
 
-  async logUser(username: string, password: string) {
+  async logUser(data: LogUser) {
+    const { username, password } = data;
     this.userValidator.validateName(username);
     this.userValidator.validatePassword(password);
 
@@ -21,7 +22,8 @@ export class UserController {
     return user;
   }
 
-  async registerUser(email: string, username: string, password: string) {
+  async registerUser(data: NewUser) {
+    const { email, username, password } = data;
     this.userValidator.validateEmail(email);
     this.userValidator.validateName(username);
     this.userValidator.validatePassword(password);
@@ -44,7 +46,7 @@ export class UserController {
     const existingUser = await this.model.findByCredentials(username, email);
     if (existingUser) throw new LoginError(`User already exists`);
     const passwordHash = getHash(password);
-    const newUser: User = {
+    const newUser: NewUser = {
       username,
       email,
       password: passwordHash

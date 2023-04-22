@@ -38,7 +38,7 @@ function UploadPhoto({ socket }: UploadPhotoProps) {
       const user_id = getAuthentificationId();
       const email = getAuthentificationEmail();
 
-      socket.emit(EmitEvent.uploadPhoto, { user_id, email, photoURL });
+      socket.emit(EmitEvent.uploadPhoto, { user_id, email, imagae_url: photoURL });
   };
 
   return (

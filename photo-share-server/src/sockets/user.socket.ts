@@ -16,7 +16,7 @@ export class UserSocket implements appSocket {
     const userController = new UserController(this.database);
     
     if (event === ReciveEvent.login) {
-      const user = await userController.logUser(data.username, data.password);
+      const user = await userController.logUser(data);
       this.socket.emit(EmitEvent.loginSuccess, {
         message: "Login successfully",
         data: {
@@ -26,7 +26,7 @@ export class UserSocket implements appSocket {
       });
     }
     if (event === ReciveEvent.register) {
-      await userController.registerUser(data.email, data.username, data.password);
+      await userController.registerUser(data);
       this.socket.emit(EmitEvent.registerSuccess, "Account created successfully!");
     }
   }

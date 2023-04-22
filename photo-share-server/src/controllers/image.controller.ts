@@ -53,7 +53,9 @@ export class ImageController {
     return images;
   }
 
-  async upvoteImage(upvotingUserId: number, imageId: number) {
+  async upvoteImage(data: UpvoteImage) {    
+    const upvotingUserId = data.user_id;
+    const imageId = data.image_id;
     this.userValidator.validateId(upvotingUserId);
     this.imageValidator.validateId(imageId);
     
@@ -102,7 +104,8 @@ export class ImageController {
     return await this.voteModel.create(userId, imageId, -1);
   }
 
-  async addImage(image_url: string, user_id: number) {
+  async addImage(data: NewImage) {
+    const { image_url, user_id } = data;
     this.userValidator.validateId(user_id);
     this.imageValidator.validateUrl(image_url);
 
